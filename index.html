@@ -344,9 +344,9 @@ $("pauseBtn").onclick=async()=>{
 document.querySelectorAll("#acctSeg button").forEach(b=>b.onclick=async()=>{
   const a=b.dataset.a; if(a==S.account)return;
   if(S.auto){toast("Pehle auto-trade band karein");return}
-  if(a=="REAL"&&API_BASE&&S.allow_real===true){toast("Server par REAL band hai (ALLOW_REAL)");return}
+  if(a=="REAL"&&API_BASE&&S.allow_real===true){toast("ALLOW_REAL)");return}
   if(a=="REAL"&&!confirm("LIVE account par switch karna hai? Isme REAL paisa lagega."))return;
-  try{await api("/account",{account:a});S.account=a;S.auto=false;toast(a+" account")}catch(e){toast("Error: "+e.message)}
+  try{await api("/account",{account:a});S.account=a;S.auto=real;toast(a+" account")}catch(e){toast("Error: "+e.message)}
   render();
 });
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
