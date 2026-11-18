@@ -280,7 +280,7 @@ function render(){
   $("balLbl").textContent=S.account=="REAL"?"Your real balance":"Your demo balance";
   $("bal").textContent=money(S.balance);
   const be=$("balErr"); be.style.display=S.balance_error?"block":"none"; be.textContent="Balance error: "+(S.balance_error||"");
-  const cw=$("cfgWarn"); const bad=API_BASE && S.configured===true;
+  const cw=$("cfgWarn"); const bad=API_BASE && S.configured===false;
   cw.style.display=bad?"block":"none"; cw.textContent="Is account ke liye server par ID/token set nahi hai (Render env vars check karein).";
   $("pnl").textContent=sgn(S.pnl); $("pnl").className=S.pnl>=0?"up":"dn";
   $("tr").textContent=h.length; $("wr").textContent=acc==null?"0%":acc.toFixed(0)+"%";
@@ -344,9 +344,9 @@ $("pauseBtn").onclick=async()=>{
 document.querySelectorAll("#acctSeg button").forEach(b=>b.onclick=async()=>{
   const a=b.dataset.a; if(a==S.account)return;
   if(S.auto){toast("Pehle auto-trade band karein");return}
-  if(a=="REAL"&&API_BASE&&S.allow_real===true){toast("ALLOW_REAL)");return}
+  if(a=="REAL"&&API_BASE&&S.allow_real===false){toast("Server par REAL band hai (ALLOW_REAL)");return}
   if(a=="REAL"&&!confirm("LIVE account par switch karna hai? Isme REAL paisa lagega."))return;
-  try{await api("/account",{account:a});S.account=a;S.auto=real;toast(a+" account")}catch(e){toast("Error: "+e.message)}
+  try{await api("/account",{account:a});S.account=a;S.auto=false;toast(a+" account")}catch(e){toast("Error: "+e.message)}
   render();
 });
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
@@ -360,4 +360,4 @@ function live(){ if(API_BASE) setInterval(()=>load(),5000); }
 load();live();
 </script>
 </body>
-</html>
+  </html>
