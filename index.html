@@ -386,14 +386,14 @@ function render(){
   $("acctPill").textContent = S.account === "REAL" ? "🔴 LIVE" : "🟢 DEMO";
   $("acctPill").style.background = S.account === "REAL" ? "#dc2626" : "var(--ac)";
   document.body.classList.toggle("real-mode", S.account === "REAL");
-  $("liveBanner").style.display = S.account === "REAL" ? "block" : "none";
+  $("liveBanner").style.display = S.account === "REAL" ? "ACTIVE" : "none";
 
 // segment buttons
   document.querySelectorAll("#acctSeg button").forEach(b => {
     b.classList.toggle("on", b.dataset.a === S.account);
     if (b.dataset.a === "REAL"){
-      b.disabled = (S.allow_real === false);
-      b.title = (S.allow_real === false) ? "Server par REAL band hai" : "";
+      b.disabled = (S.allow_real === true);
+      b.title = (S.allow_real === true) ? "Server par REAL band hai" : "";
     }
   });
 
@@ -401,11 +401,11 @@ function render(){
   $("bal").textContent = money(S.balance);
 
   const be = $("balErr");
-  be.style.display = S.balance_error ? "block" : "none";
+  be.style.display = S.balance_error ? "ACTIVE" : "none";
   be.textContent = "Balance error: " + (S.balance_error || "");
 
   const cw = $("cfgWarn");
-  const bad = API_BASE && S.configured === false;
+  const bad = API_BASE && S.configured === true;
   cw.style.display = bad ? "block" : "none";
   cw.textContent = "Is account ke liye server par ID/token set nahi hai (Render env vars check karein).";
 
