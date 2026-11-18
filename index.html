@@ -6,46 +6,95 @@
 <title>TWB Forex Hunter</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root{--bg:#0d0f14;--card:#1a1d25;--card2:#262a35;--tx:#f3f4f7;--mu:#8b90a0;--ac:#f5426a;--ac2:#ff6a3d;--ok:#4ade80;--bad:#f87171;--r:22px}
+:root{
+  --bg:#050b1c;
+  --card:rgba(18,38,82,.55);
+  --card2:rgba(30,58,120,.45);
+  --tx:#eef4ff;
+  --mu:#8fa6d4;
+  --ac:#3b82f6;
+  --ac2:#1d4ed8;
+  --ok:#22c55e;
+  --bad:#ef4444;
+  --gold:#f5b82e;
+  --r:22px;
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:radial-gradient(120% 40% at 50% 0,#4a1626 0,var(--bg) 60%) no-repeat,var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:0 16px 110px;min-height:100vh}
+body{
+  margin:0;
+  background:radial-gradient(120% 60% at 50% 0%,#14306b 0%,var(--bg) 60%) no-repeat,var(--bg);
+  color:var(--tx);
+  font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  padding:0 16px 110px;
+  min-height:100vh;
+}
 header{display:flex;align-items:center;justify-content:space-between;padding:14px 0 10px;gap:8px}
 .brand{font-weight:800;font-size:18px;letter-spacing:.3px}
 .brand small{display:block;color:var(--mu);font-weight:500;font-size:11px;letter-spacing:0}
 .pill{background:var(--ac);padding:7px 12px;border-radius:12px;font-weight:700;font-size:13px}
-.card{background:var(--card);border-radius:var(--r);padding:18px;margin:12px 0;border:1px solid #ffffff0d}
-.seg{display:inline-flex;background:var(--bg);border-radius:12px;padding:3px;gap:2px}
+.card{
+  background:var(--card);
+  border:1px solid rgba(120,160,255,.18);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  box-shadow:0 8px 32px rgba(0,0,0,.35);
+  border-radius:var(--r);
+  padding:18px;
+  margin:12px 0;
+}
+.seg{display:inline-flex;background:rgba(5,11,28,.6);border-radius:12px;padding:3px;gap:2px}
 .seg button{border:0;background:none;color:var(--mu);padding:8px 14px;border-radius:10px;font-weight:600;font-size:14px}
-.seg button.on{background:var(--card2);color:var(--tx)}
+.seg button.on{background:var(--ac);color:#fff}
 .lbl{color:var(--mu);font-size:13px;margin-top:14px}
-.big{font-size:40px;font-weight:800;letter-spacing:-1px}
+.big{font-size:40px;font-weight:800;letter-spacing:-1px;color:#fff}
 .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
-.tile{background:var(--card2);border-radius:16px;padding:12px}
+.tile{background:var(--card2);border-radius:16px;padding:12px;border:1px solid rgba(120,160,255,.12)}
 .tile span{color:var(--mu);font-size:12px;display:block}
 .tile b{font-size:20px}
-.btn{width:100%;border:0;border-radius:18px;padding:16px;font-size:17px;font-weight:700;color:#fff;background:linear-gradient(90deg,var(--ac),var(--ac2));margin-top:14px}
+.btn{
+  width:100%;border:0;border-radius:16px;padding:14px;font-size:16px;font-weight:700;color:#fff;
+  background:linear-gradient(90deg,var(--ac),var(--ac2));margin-top:14px;
+}
 .btn.stop{background:var(--card2);color:var(--bad);border:1px solid var(--bad)}
-.btn.ghost{background:#f5426a1a;color:var(--ac);border:1px solid #f5426a55}
-.row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #ffffff10}
+.btn.ghost{background:rgba(245,184,46,.12);color:var(--gold);border:1px solid rgba(245,184,46,.45)}
+.btn-row{display:flex;gap:8px;margin-top:12px}
+#autoBtn,#pauseBtn{width:auto;flex:1;padding:9px 10px;font-size:13px;border-radius:12px;margin-top:0}
+.row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(120,160,255,.1)}
 .row:last-child{border:0}
 .up{color:var(--ok)}.dn{color:var(--bad)}.mu{color:var(--mu)}
 .bar{height:8px;border-radius:6px;background:var(--card2);overflow:hidden;margin-top:8px}
-.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--ok))}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--gold))}
 .badge{display:inline-block;padding:3px 10px;border-radius:10px;font-weight:700;font-size:12px}
-.badge.call{background:#4ade8026;color:var(--ok)}.badge.put{background:#f8717126;color:var(--bad)}
+.badge.call{background:rgba(34,197,94,.15);color:var(--ok)}
+.badge.put{background:rgba(239,68,68,.15);color:var(--bad)}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.chip{border:1px solid #ffffff1f;background:var(--card2);color:var(--tx);padding:8px 12px;border-radius:12px;font-size:13px}
+.chip{border:1px solid rgba(255,255,255,.12);background:var(--card2);color:var(--tx);padding:8px 12px;border-radius:12px;font-size:13px}
 .chip.on{background:var(--ac);border-color:var(--ac)}
 h3{margin:0 0 4px;font-size:16px}
-nav{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-around;background:#14171eee;backdrop-filter:blur(10px);padding:10px 8px calc(10px + env(safe-area-inset-bottom));border-top:1px solid #ffffff12;border-radius:24px 24px 0 0}
+nav{
+  position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-around;
+  background:rgba(8,18,44,.92);backdrop-filter:blur(10px);
+  padding:10px 8px calc(10px + env(safe-area-inset-bottom));
+  border-top:1px solid rgba(120,160,255,.18);border-radius:24px 24px 0 0;
+}
 nav button{border:0;background:none;color:var(--mu);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 14px}
 nav button .i{font-size:22px}
-nav button.on{color:var(--tx)}
+nav button.on{color:#fff}
 .page{display:none}.page.on{display:block}
 .dots{display:flex;gap:6px;margin-top:8px}.dot{width:14px;height:14px;border-radius:50%}
-input[type=number]{width:100%;background:var(--card2);border:1px solid #ffffff1f;color:var(--tx);border-radius:12px;padding:12px;font-size:16px;margin-top:6px}
-.warn{background:#f59e0b1f;border:1px solid #f59e0b55;color:#fbbf24;border-radius:14px;padding:10px 12px;font-size:13px;margin-top:12px}
+input[type=number]{width:100%;background:var(--card2);border:1px solid rgba(120,160,255,.2);color:var(--tx);border-radius:12px;padding:12px;font-size:16px;margin-top:6px}
+.warn{background:rgba(245,184,46,.12);border:1px solid rgba(245,184,46,.45);color:#fcd34d;border-radius:14px;padding:10px 12px;font-size:13px;margin-top:12px}
 .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:#000c;padding:10px 16px;border-radius:12px;display:none;z-index:9}
+/* live feed table */
+.ftbl{width:100%;border-collapse:collapse;font-size:12px}
+.ftbl th{color:var(--mu);font-weight:600;text-align:left;padding:6px 4px;border-bottom:1px solid rgba(120,160,255,.2)}
+.ftbl td{padding:8px 4px;border-bottom:1px solid rgba(120,160,255,.08)}
+.ftbl .win{color:var(--ok);font-weight:700}
+.ftbl .loss{color:var(--bad);font-weight:700}
+.ftbl .draw{color:var(--mu);font-weight:700}
+.pc-call{color:var(--ok)}
+.pc-put{color:var(--bad)}
+.feed-empty{color:var(--mu);font-size:13px;padding:8px 0}
 </style>
 </head>
 <body>
@@ -70,8 +119,10 @@ input[type=number]{width:100%;background:var(--card2);border:1px solid #ffffff1f
     </div>
     <div class="warn" id="balErr" style="display:none"></div>
     <div class="warn" id="cfgWarn" style="display:none"></div>
-    <button class="btn" id="autoBtn">Start auto trading</button>
-    <button class="btn ghost" id="pauseBtn">Pause scanner</button>
+    <div class="btn-row">
+      <button class="btn" id="autoBtn">Start auto trading</button>
+      <button class="btn ghost" id="pauseBtn">Pause scanner</button>
+    </div>
   </div>
 
   <div class="card">
@@ -81,7 +132,7 @@ input[type=number]{width:100%;background:var(--card2);border:1px solid #ffffff1f
 
   <div class="card">
     <h3>Live feed</h3>
-    <div id="feed"></div>
+    <div id="feedBox"><div class="feed-empty">Abhi koi trade nahi.</div></div>
   </div>
 
   <div class="card">
@@ -145,9 +196,8 @@ input[type=number]{width:100%;background:var(--card2);border:1px solid #ffffff1f
 <script>
 /* ====== CONFIG ====== */
 const API_BASE = "https://twb-api.onrender.com";
-const _unused = "";   // backend URL (https://your-server.com). Khali = DEMO data (sirf design preview)
 const tg = window.Telegram && Telegram.WebApp;
-if (tg) { tg.ready(); tg.expand(); try{tg.setHeaderColor("#0d0f14");tg.setBackgroundColor("#0d0f14");}catch(e){} }
+if (tg) { tg.ready(); tg.expand(); try{tg.setHeaderColor("#050b1c");tg.setBackgroundColor("#050b1c");}catch(e){} }
 
 const PAIRS = ["EUR/USD","GBP/USD","USD/JPY","AUD/USD","USD/CAD","Volatility 10","Volatility 25","Volatility 50","Volatility 75","Volatility 100","Volatility 10 (1s)","Volatility 25 (1s)","Volatility 30 (1s)","Volatility 50 (1s)","Volatility 75 (1s)","Volatility 90 (1s)","Volatility 100 (1s)","Volatility 150 (1s)","Volatility 250 (1s)"];
 const STRATS = {PIXEL:"Hyper Pixel",APEX:"Hyper Apex",ARF:"Adaptive Range",BOTH:"Pixel+Apex",ALL:"Teeno",VINI:"VINI"};
@@ -200,6 +250,26 @@ function chips(id,items,isOn,onTap){
 function haptic(){try{tg.HapticFeedback.selectionChanged()}catch(e){}}
 function ladder(stake,n){const o=[];let a=stake;for(let i=0;i<=n;i++){o.push(a);a=Math.round(a*MULT*100)/100}return o}
 
+/* ====== live feed table ====== */
+function renderFeed(){
+  const box=$("feedBox"); if(!box) return;
+  const h=(S.history||[]).slice().reverse().slice(0,20);
+  if(!h.length){ box.innerHTML='<div class="feed-empty">Abhi koi trade nahi.</div>'; return; }
+  let rows="";
+  h.forEach(t=>{
+    const dir=String(t.dir||"").toUpperCase();
+    const isCall=dir==="CALL"||dir==="BUY";
+    const pc=isCall?"CALL":"PUT";
+    const pcCls=isCall?"pc-call":"pc-put";
+    const time=new Date(t.t*1000).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});
+    const res=t.result||"";
+    const resCls=res==="WIN"?"win":res==="LOSS"?"loss":"draw";
+    const emoji=res==="WIN"?" 🎉":res==="LOSS"?" 😢":"";
+    rows+=`<tr><td>${t.pair||"-"}</td><td class="${pcCls}">${pc}</td><td>${time}</td><td class="${resCls}">${res}${emoji}</td></tr>`;
+  });
+  box.innerHTML=`<table class="ftbl"><thead><tr><th>Pair</th><th>Put/Call</th><th>Entry</th><th>Win/Loss</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
 /* ====== render ====== */
 function render(){
   const h=S.history, W=h.filter(x=>x.result=="WIN").length, L=h.filter(x=>x.result=="LOSS").length, D=h.filter(x=>x.result=="DRAW").length;
@@ -212,12 +282,10 @@ function render(){
   const be=$("balErr"); be.style.display=S.balance_error?"block":"none"; be.textContent="Balance error: "+(S.balance_error||"");
   const cw=$("cfgWarn"); const bad=API_BASE && S.configured===false;
   cw.style.display=bad?"block":"none"; cw.textContent="Is account ke liye server par ID/token set nahi hai (Render env vars check karein).";
-  const ev=(S.events||[]).slice(-12).reverse();
-  $("feed").innerHTML=ev.length?ev.map(e=>`<div class="row" style="padding:8px 0"><div style="font-size:13px"><span class="mu">${new Date(e.t*1000).toTimeString().slice(0,5)}</span> ${String(e.m).replace(/</g,"&lt;")}</div></div>`).join(""):'<div class="mu">Abhi koi activity nahi.</div>';
   $("pnl").textContent=sgn(S.pnl); $("pnl").className=S.pnl>=0?"up":"dn";
   $("tr").textContent=h.length; $("wr").textContent=acc==null?"0%":acc.toFixed(0)+"%";
-  const ab=$("autoBtn"); ab.textContent=S.auto?"Stop auto trading":"Start "+(S.account=="REAL"?"live":"demo")+" trading"; ab.className="btn"+(S.auto?" stop":"");
-  $("pauseBtn").textContent=S.paused?"Resume scanner":"Pause scanner";
+  const ab=$("autoBtn"); ab.textContent=S.auto?"Stop auto":"Start auto"; ab.className="btn"+(S.auto?" stop":"");
+  $("pauseBtn").textContent=S.paused?"Resume":"Pause";
 
   const g=S.signal;
   $("sig").innerHTML=g?`<div class="row" style="border:0"><div><b style="font-size:18px">${g.pair}</b><div class="mu" style="font-size:12px">${g.tag} · ${g.price}</div></div>
@@ -249,10 +317,11 @@ function render(){
   if(document.activeElement!==$("cap"))$("cap").value=S.capital;
   $("cap").oninput=()=>{dirty=true};$("risk").oninput=()=>{dirty=true};
   if(document.activeElement!==$("risk"))$("risk").value=S.risk_cap||0;
+  renderFeed();
 }
 
 /* ====== actions ====== */
-async function save(extra){
+async function save(){
   const body={strategy:S.strategy,minscore:S.minscore,expiry:S.expiry,stake:S.stake,mtg:S.mtg,capital:+$("cap").value||S.capital,
     target:S.target,risk_cap:+$("risk").value||0,pairs:S.pairs};
   S.capital=body.capital;S.risk_cap=body.risk_cap;
@@ -269,7 +338,8 @@ $("autoBtn").onclick=async()=>{
   render();
 };
 $("pauseBtn").onclick=async()=>{
-  try{await api("/pause",{paused:!S.paused});S.paused=!S.paused}catch(e){toast("Error: "+e.message)}render();
+  try{await api("/pause",{paused:!S.paused});S.paused=!S.paused}catch(e){toast("Error: "+e.message)}
+  render();
 };
 document.querySelectorAll("#acctSeg button").forEach(b=>b.onclick=async()=>{
   const a=b.dataset.a; if(a==S.account)return;
@@ -285,11 +355,8 @@ document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
   window.scrollTo(0,0);haptic();
 });
 
-/* live updates: server WebSocket (WS /live) ya 5 sec polling */
-function live(){
-  if(!API_BASE){return}
-  setInterval(()=>load(),5000);
-}
+/* live updates: 5 sec polling */
+function live(){ if(API_BASE) setInterval(()=>load(),5000); }
 load();live();
 </script>
 </body>
