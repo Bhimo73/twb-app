@@ -280,7 +280,7 @@ function render(){
   $("balLbl").textContent=S.account=="REAL"?"Your real balance":"Your demo balance";
   $("bal").textContent=money(S.balance);
   const be=$("balErr"); be.style.display=S.balance_error?"block":"none"; be.textContent="Balance error: "+(S.balance_error||"");
-  const cw=$("cfgWarn"); const bad=API_BASE && S.configured===false;
+  const cw=$("cfgWarn"); const bad=API_BASE && S.configured===true;
   cw.style.display=bad?"block":"none"; cw.textContent="Is account ke liye server par ID/token set nahi hai (Render env vars check karein).";
   $("pnl").textContent=sgn(S.pnl); $("pnl").className=S.pnl>=0?"up":"dn";
   $("tr").textContent=h.length; $("wr").textContent=acc==null?"0%":acc.toFixed(0)+"%";
