@@ -1,0 +1,791 @@
+
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>TWB Forex Hunter</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{
+  --bg:#050b1c;
+  --card:rgba(18,38,82,.55);
+  --card2:rgba(30,58,120,.45);
+  --tx:#eef4ff;
+  --mu:#8fa6d4;
+  --ac:#3b82f6;
+  --ac2:#1d4ed8;
+  --ok:#22c55e;
+  --bad:#ef4444;
+  --gold:#f5b82e;
+  --r:22px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;
+  background:radial-gradient(120% 60% at 50% 0%,#14306b 0%,var(--bg) 60%) no-repeat,var(--bg);
+  color:var(--tx);
+  font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  padding:0 16px 110px;
+  min-height:100vh;
+  transition:background .3s;
+}
+body.real-mode{
+  background:radial-gradient(120% 60% at 50% 0%,#7f1d1d 0%,var(--bg) 60%) no-repeat,var(--bg);
+}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 0 10px;gap:8px}
+.brand{font-weight:800;font-size:18px;letter-spacing:.3px}
+.brand small{display:block;color:var(--mu);font-weight:500;font-size:11px;letter-spacing:0}
+.pill{background:var(--ac);padding:7px 12px;border-radius:12px;font-weight:700;font-size:13px}
+.card{
+  background:var(--card);
+  border:1px solid rgba(120,160,255,.18);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  box-shadow:0 8px 32px rgba(0,0,0,.35);
+  border-radius:var(--r);
+  padding:18px;
+  margin:12px 0;
+}
+.seg{display:inline-flex;background:rgba(5,11,28,.6);border-radius:12px;padding:3px;gap:2px}
+.seg button{border:0;background:none;color:var(--mu);padding:8px 14px;border-radius:10px;font-weight:600;font-size:14px}
+.seg button.on{background:var(--ac);color:#fff}
+.seg button.on[data-a="REAL"]{background:#dc2626}
+.seg button:disabled{opacity:.5;cursor:not-allowed}
+.lbl{color:var(--mu);font-size:13px;margin-top:14px}
+.big{font-size:40px;font-weight:800;letter-spacing:-1px;color:#fff}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.tile{background:var(--card2);border-radius:16px;padding:12px;border:1px solid rgba(120,160,255,.12)}
+.tile span{color:var(--mu);font-size:12px;display:block}
+.tile b{font-size:20px}
+.btn{
+  width:100%;border:0;border-radius:16px;padding:14px;font-size:16px;font-weight:700;color:#fff;
+  background:linear-gradient(90deg,var(--ac),var(--ac2));margin-top:14px;
+}
+.btn:disabled{opacity:.5}
+.btn.stop{background:var(--card2);color:var(--bad);border:1px solid var(--bad)}
+.btn.ghost{background:rgba(245,184,46,.12);color:var(--gold);border:1px solid rgba(245,184,46,.45)}
+.btn-row{display:flex;gap:8px;margin-top:12px}
+#autoBtn,#pauseBtn{width:auto;flex:1;padding:9px 10px;font-size:13px;border-radius:12px;margin-top:0}
+.row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(120,160,255,.1)}
+.row:last-child{border:0}
+.up{color:var(--ok)}.dn{color:var(--bad)}.mu{color:var(--mu)}
+.bar{height:8px;border-radius:6px;background:var(--card2);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--gold))}
+.badge{display:inline-block;padding:3px 10px;border-radius:10px;font-weight:700;font-size:12px}
+.badge.call{background:rgba(34,197,94,.15);color:var(--ok)}
+.badge.put{background:rgba(239,68,68,.15);color:var(--bad)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{border:1px solid rgba(255,255,255,.12);background:var(--card2);color:var(--tx);padding:8px 12px;border-radius:12px;font-size:13px}
+.chip.on{background:var(--ac);border-color:var(--ac)}
+h3{margin:0 0 4px;font-size:16px}
+nav{
+  position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-around;
+  background:rgba(8,18,44,.92);backdrop-filter:blur(10px);
+
+padding:10px 8px calc(10px + env(safe-area-inset-bottom));
+  border-top:1px solid rgba(120,160,255,.18);border-radius:24px 24px 0 0;
+}
+nav button{border:0;background:none;color:var(--mu);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 14px}
+nav button .i{font-size:22px}
+nav button.on{color:#fff}
+.page{display:none}.page.on{display:block}
+.dots{display:flex;gap:6px;margin-top:8px}.dot{width:14px;height:14px;border-radius:50%}
+input[type=number]{width:100%;background:var(--card2);border:1px solid rgba(120,160,255,.2);color:var(--tx);border-radius:12px;padding:12px;font-size:16px;margin-top:6px}
+.warn{background:rgba(245,184,46,.12);border:1px solid rgba(245,184,46,.45);color:#fcd34d;border-radius:14px;padding:10px 12px;font-size:13px;margin-top:12px}
+.warn.live{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.5);color:#fca5a5}
+.toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:#000c;padding:10px 16px;border-radius:12px;display:none;z-index:9;font-size:13px;max-width:90%}
+.ftbl{width:100%;border-collapse:collapse;font-size:12px}
+.ftbl th{color:var(--mu);font-weight:600;text-align:left;padding:6px 4px;border-bottom:1px solid rgba(120,160,255,.2)}
+.ftbl td{padding:8px 4px;border-bottom:1px solid rgba(120,160,255,.08)}
+.ftbl .win{color:var(--ok);font-weight:700}
+.ftbl .loss{color:var(--bad);font-weight:700}
+.ftbl .draw{color:var(--mu);font-weight:700}
+.pc-call{color:var(--ok)}
+.pc-put{color:var(--bad)}
+.feed-empty{color:var(--mu);font-size:13px;padding:8px 0}
+
+/* Admin login and profile add-ons */
+#loginScreen{position:fixed;inset:0;z-index:1000;background:radial-gradient(120% 60% at 50% 0%,#14306b 0%,#050b1c 65%);display:flex;align-items:center;justify-content:center;padding:22px}
+#loginScreen .login-card{width:100%;max-width:420px;background:rgba(18,38,82,.88);border:1px solid #4773c7;border-radius:24px;padding:24px;box-shadow:0 16px 48px #0008}
+.login-logo{width:76px;height:76px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;color:#eaffff;border:3px solid #35e4d2;box-shadow:0 0 24px #1dd6c755}
+.login-card h2{text-align:center;margin:4px 0}.login-card p{text-align:center;color:var(--mu);margin:0 0 18px}
+.login-card input{display:block;width:100%;margin:10px 0;background:#101f43;border:1px solid #45639d;border-radius:12px;padding:14px;color:#fff;font-size:16px}
+.login-card button{width:100%;border:0;border-radius:14px;padding:14px;margin-top:10px;background:linear-gradient(90deg,#3b82f6,#1d4ed8);color:white;font-weight:800;font-size:16px}
+#loginError{color:#fca5a5;font-size:13px;min-height:18px;margin-top:8px}
+#appShell.app-locked{display:none}
+.ist-clock{font-size:12px;color:var(--gold);font-weight:700;text-align:right;white-space:nowrap}
+.profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.profile-cell{background:var(--card2);padding:12px;border-radius:14px;min-width:0}
+.profile-cell small{display:block;color:var(--mu);font-size:11px}
+.profile-cell b{display:block;font-size:15px;overflow-wrap:anywhere}
+.countdown{font-size:26px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums}
+
+</style>
+</head>
+<body>
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">TWB<br>AI</div>
+    <h2>TWB FOREX HUNTER</h2>
+    <p>TRADER BHIMO · ADMIN LOGIN</p>
+    <input id="loginId" type="text" autocomplete="username" placeholder="Login ID">
+    <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Password">
+    <button id="loginBtn" type="button">LOGIN</button>
+    <div id="loginError"></div>
+  </div>
+</div>
+<div id="appShell" class="app-locked">
+
+<header>
+  <div class="brand">TWB FOREX HUNTER<small id="status">Connecting...</small></div>
+  <div class="ist-clock" id="istClock">--:--:-- IST</div>
+  <button type="button" id="logoutBtn" class="btn" style="padding:8px 12px;font-size:12px">LOGOUT</button>
+  <div class="pill" id="acctPill">DEMO</div>
+</header>
+
+<!-- TRADING -->
+
+<section class="page on" id="p-trade">
+  <div class="card" id="profileCard">
+    <h3>TRADER PROFILE</h3>
+    <div class="profile-grid">
+      <div class="profile-cell"><small>Name / Role</small><b id="profileName">TRADER BHIMO · ADMIN</b></div>
+      <div class="profile-cell"><small>Login ID</small><b id="profileLogin">ADMIN</b></div>
+      <div class="profile-cell"><small>Today's P/L</small><b id="todayPnl">$0.00</b></div>
+      <div class="profile-cell"><small>Date (IST)</small><b id="todayDate">—</b></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="seg" id="acctSeg">
+      <button data-a="DEMO" class="on">Demo mode</button>
+      <button data-a="REAL">Real account</button>
+    </div>
+    <div id="liveBanner" class="warn live" style="display:none">⚠️ LIVE ACCOUNT — Real paisa lagega. Dhyan se trade karein.</div>
+    <div class="lbl" id="balLbl">Demo balance</div>
+    <div class="big" id="bal">$0.00</div>
+    <div class="tiles">
+      <div class="tile"><span>Session PnL</span><b id="pnl">$0</b></div>
+      <div class="tile"><span>Trades</span><b id="tr">0</b></div>
+      <div class="tile"><span>Winrate</span><b id="wr">0%</b></div>
+    </div>
+    <div class="warn" id="balErr" style="display:none"></div>
+    <div class="warn" id="cfgWarn" style="display:none"></div>
+    <div class="btn-row">
+      <button class="btn" id="autoBtn">Start auto trading</button>
+      <button class="btn ghost" id="pauseBtn">Pause scanner</button>
+    </div>
+  </div>
+
+  <div class="card" id="activeTradeCard" style="display:none">
+    <h3>Trade Countdown</h3>
+    <div id="activeTradeInfo" class="mu">Contract status loading...</div>
+    <div class="countdown" id="tradeCountdown">--:--</div>
+  </div>
+
+  <div class="card">
+    <h3>Latest signal</h3>
+    <div id="sig" class="mu">Abhi koi signal nahi. Scanner har candle close par check karta hai.</div>
+  </div>
+
+  <div class="card">
+    <h3>Live feed</h3>
+    <div id="feedBox"><div class="feed-empty">Abhi koi trade nahi.</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Recent trades</h3>
+    <div id="recent"></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="page" id="p-stats">
+  <div class="card">
+    <h3>Performance</h3>
+    <div class="tiles">
+      <div class="tile"><span>Win</span><b class="up" id="sW">0</b></div>
+      <div class="tile"><span>Loss</span><b class="dn" id="sL">0</b></div>
+      <div class="tile"><span>Draw</span><b id="sD">0</b></div>
+    </div>
+    <div class="lbl">Accuracy</div><div class="bar"><i id="accBar" style="width:0"></i></div>
+    <div class="lbl">First trade accuracy</div><div class="big" style="font-size:26px" id="fAcc">N/A</div>
+    <div class="lbl">Last 10</div><div class="dots" id="last10"></div>
+    <div class="lbl">Total PnL</div><div class="big" style="font-size:26px" id="totPnl">$0</div>
+  </div>
+  <div class="card"><h3>History</h3><button class="btn ghost" id="clearHistoryBtn" type="button">Clear history</button><div id="hist"></div></div>
+</section>
+
+<!-- SETTINGS -->
+<section class="page" id="p-set">
+  <div class="card">
+    <h3>Strategy</h3>
+    <div class="chips" id="strat"></div>
+    <div class="lbl">Min strength</div>
+    <div class="chips" id="minsc"></div>
+    <div class="lbl">Expiry (min)</div>
+    <div class="chips" id="exp"></div>
+  </div>
+  <div class="card">
+    <h3>Money management</h3>
+    <div class="lbl">Fund (L1 stake)</div><div class="chips" id="stake"></div>
+    <div class="lbl">Martingale (x2.5)</div><div class="chips" id="mtg"></div>
+    <div class="lbl">Ladder</div><div id="ladder" class="mu"></div>
+    <div class="lbl">Capital</div><input type="number" id="cap" inputmode="decimal">
+    <div class="lbl">Target % (0 = OFF)</div><div class="chips" id="tgt"></div>
+    <div class="lbl">Risk capital (0 = auto 20%)</div><input type="number" id="risk" inputmode="decimal">
+    <button class="btn" id="saveBtn">Save settings</button>
+  </div>
+  <div class="card">
+    <h3>Pairs</h3>
+    <div class="chips" id="pairs"></div>
+    <div class="chips"><button class="chip" id="pVol">Sirf Volatility</button><button class="chip" id="pFx">Sirf Forex</button><button class="chip" id="pAll">All</button></div>
+  </div>
+  <div class="warn">Signal strength sirf ranking hai, jeet ki guarantee nahi. Pehle Demo par test karein.</div>
+</section>
+
+<nav>
+  <button class="on" data-p="trade"><span class="i">📈</span>Trading</button>
+  <button data-p="stats"><span class="i">📊</span>Stats</button>
+  <button data-p="set"><span class="i">⚙️</span>Settings</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   CONFIG
+============================================================ */
+const API_BASE = "https://twb-api.onrender.com";
+const tg = window.Telegram && Telegram.WebApp;
+let APP_SESSION = sessionStorage.getItem("twb_admin_session") || "";
+if (tg) {
+  tg.ready(); tg.expand();
+  try { tg.setHeaderColor("#050b1c"); tg.setBackgroundColor("#050b1c"); } catch(e){}
+}
+
+const PAIRS = ["EUR/USD","GBP/USD","USD/JPY","AUD/USD","USD/CAD","Volatility 10","Volatility 25","Volatility 50","Volatility 75","Volatility 100","Volatility 10 (1s)","Volatility 25 (1s)","Volatility 30 (1s)","Volatility 50 (1s)","Volatility 75 (1s)","Volatility 90 (1s)","Volatility 100 (1s)","Volatility 250 (1s)"];
+const STRATS = {PIXEL:"Hyper Pixel",APEX:"Hyper Apex",ARF:"Adaptive Range",BOTH:"Pixel+Apex",ALL:"Teeno",VINI:"VINI"};
+const MTG = [[0,"No MTG"],[1,"MTG-1"],[2,"MTG-2"],[3,"MTG-3"],[4,"MTG-4"]];
+const MULT = 2.5;
+
+let dirty = false;
+const SETKEYS = ["strategy","minscore","expiry","stake","mtg","capital","target","risk_cap","pairs"];
+let S = {
+  account:"DEMO", auto:false, paused:false, balance:0, pnl:0,
+  strategy:"PIXEL", minscore:60, expiry:1, stake:100, mtg:1,
+  capital:1000, target:0, risk_cap:0, pairs:PAIRS.slice(),
+  signal:null, history:[],
+  allow_real:false, configured:false, balance_error:null
+};
+
+/* ============================================================
+   HELPERS
+============================================================ */
+const $ = id => document.getElementById(id);
+const money = v => v == null ? "—" : (v<0?"-":"") + "$" + Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const sgn = v => (v>=0?"+":"-") + "$" + Math.abs(v).toFixed(2);
+
+// CALL/BUY dono ko CALL maanta hai, baaki sab PUT
+const isCall = d => { const x = String(d || "").toUpperCase(); return x === "BUY" || x === "CALL"; };
+
+// Telegram-safe confirm (prompt/confirm Telegram mein aksar block hote hain)
+const ask = m => new Promise(res => {
+  try {
+    if (tg && tg.showConfirm && tg.isVersionAtLeast && tg.isVersionAtLeast("6.2")) {
+      tg.showConfirm(m, ok => res(!!ok));
+      return;
+    }
+  } catch(e){}
+  res(confirm(m));
+});
+
+function toast(m){
+  const t = $("toast");
+  t.textContent = m;
+  t.style.display = "block";
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.style.display = "none", 2500);
+}
+
+function chips(id, items, isOn, onTap){
+  const el = $(id); el.innerHTML = "";
+  items.forEach(([v,label]) => {
+    const b = document.createElement("button");
+    b.className = "chip" + (isOn(v) ? " on" : "");
+    b.textContent = label;
+    b.onclick = () => { onTap(v); dirty = true; render(); haptic(); };
+    el.appendChild(b);
+  });
+}
+
+function haptic(){
+  try { tg.HapticFeedback.selectionChanged(); } catch(e){}
+}
+
+function ladder(stake, n){
+  const o = []; let a = stake;
+  for (let i=0; i<=n; i++){ o.push(a); a = Math.round(a * MULT * 100) / 100; }
+  return o;
+}
+
+/* ============================================================
+   API
+============================================================ */
+async function api(path, body){
+  if (!API_BASE) return null;
+  const r = await fetch(API_BASE + path, {
+    method: body ? "POST" : "GET",
+    headers: {
+      "Content-Type":"application/json",
+      "X-App-Session": APP_SESSION
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (!r.ok) {
+    let msg = r.status;
+    try { msg = (await r.text()) || r.status; } catch(e){}
+    const err = new Error(msg);
+    err.status = r.status;
+    throw err;
+  }
+  return r.json();
+}
+
+async function load(){
+  try{
+    const d = await api("/state");
+    if (d){
+      if (dirty){
+        const keep = {};
+        SETKEYS.forEach(k => keep[k] = S[k]);
+        S = Object.assign(S, d, keep);
+      } else {
+        S = Object.assign(S, d);
+      }
+      $("status").textContent = d.status || "Connected";
+    } else {
+      $("status").textContent = "Backend URL missing";
+    }
+  } catch(e){
+    if (e.status === 401) {
+      clearAppSession();
+      $("loginError").textContent = "Session expire ho gaya. Dobara login karein.";
+      showLogin();
+      return;
+    }
+    $("status").textContent = "Server error";
+    S.balance = null;
+    S.balance_error = e.message;
+    toast("Backend: " + e.message);
+  }
+  render();
+}
+
+
+/* ============================================================
+   LIVE FEED
+============================================================ */
+function renderFeed(){
+  const box = $("feedBox");
+  if (!box) return;
+  const h = (S.history || []).slice().reverse().slice(0, 20);
+  if (!h.length){
+    box.innerHTML = '<div class="feed-empty">Abhi koi trade nahi.</div>';
+    return;
+  }
+  let rows = "";
+  h.forEach(t => {
+    const call = isCall(t.dir);
+    const pc = call ? "CALL" : "PUT";
+    const pcCls = call ? "pc-call" : "pc-put";
+    const time = new Date(t.t*1000).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});
+    const res = t.result || "";
+    const resCls = res === "WIN" ? "win" : res === "LOSS" ? "loss" : "draw";
+    const emoji = res === "WIN" ? " 🎉" : res === "LOSS" ? " 😢" : "";
+    rows += `<tr>
+      <td>${t.pair || "-"}</td>
+      <td class="${pcCls}">${pc}</td>
+      <td>${time}</td>
+      <td class="${resCls}">${res}${emoji}</td>
+    </tr>`;
+  });
+  box.innerHTML = `<table class="ftbl">
+    <thead><tr><th>Pair</th><th>Put/Call</th><th>Entry</th><th>Win/Loss</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+/* ============================================================
+   RENDER
+============================================================ */
+function render(){
+  const h = S.history || [];
+  const W = h.filter(x => x.result === "WIN").length;
+  const L = h.filter(x => x.result === "LOSS").length;
+  const D = h.filter(x => x.result === "DRAW").length;
+  const acc = (W + L) ? W * 100 / (W + L) : null;
+
+  // account pill
+  $("acctPill").textContent = S.account === "REAL" ? "🔴 LIVE" : "🟢 DEMO";
+  $("acctPill").style.background = S.account === "REAL" ? "#dc2626" : "var(--ac)";
+  document.body.classList.toggle("real-mode", S.account === "REAL");
+  $("liveBanner").style.display = S.account === "REAL" ? "block" : "none";
+
+// segment buttons
+  document.querySelectorAll("#acctSeg button").forEach(b => {
+    b.classList.toggle("on", b.dataset.a === S.account);
+    if (b.dataset.a === "REAL"){
+      b.disabled = (S.allow_real !== true);
+      b.title = (S.allow_real !== true) ? "Server par REAL permission enabled nahi hai" : "";
+    }
+  });
+
+  $("balLbl").textContent = S.account === "REAL" ? "Your real balance" : "Your demo balance";
+  $("bal").textContent = money(S.balance);
+
+  const be = $("balErr");
+  be.style.display = S.balance_error ? "block" : "none";
+  be.textContent = "Balance error: " + (S.balance_error || "");
+
+  const cw = $("cfgWarn");
+  const bad = !!API_BASE && S.configured === false;
+  cw.style.display = bad ? "block" : "none";
+  cw.textContent = "Is account ke liye server par ID/token set nahi hai (Render env vars check karein).";
+
+  $("pnl").textContent = sgn(S.pnl || 0);
+  $("pnl").className = (S.pnl || 0) >= 0 ? "up" : "dn";
+  $("tr").textContent = h.length;
+  $("wr").textContent = acc == null ? "0%" : acc.toFixed(0) + "%";
+
+  const ab = $("autoBtn");
+  ab.textContent = S.auto ? "Stop auto" : "Start auto";
+  ab.className = "btn" + (S.auto ? " stop" : "");
+  $("pauseBtn").textContent = S.paused ? "Resume" : "Pause";
+
+  // signal
+  const g = S.signal;
+  if (g){
+    const gc = isCall(g.sig);
+    $("sig").innerHTML = `
+      <div class="row" style="border:0">
+        <div>
+          <b style="font-size:18px">${g.pair}</b>
+          <div class="mu" style="font-size:12px">${g.tag} · ${g.price}</div>
+        </div>
+        <span class="badge ${gc ? "call" : "put"}">
+          ${gc ? "CALL ⬆" : "PUT ⬇"}
+        </span>
+      </div>
+      <div class="mu" style="font-size:13px">Strength <b style="color:var(--tx)">${g.score}/100</b></div>
+      <div class="bar"><i style="width:${g.score}%"></i></div>`;
+  } else {
+    $("sig").innerHTML = "Abhi koi signal nahi. Scanner har candle close par check karta hai.";
+  }
+
+  // recent
+  const rec = h.slice(-6).reverse();
+  if (rec.length){
+    $("recent").innerHTML = rec.map(x => 
+      `<div class="row">
+        <div>${x.pair} <span class="mu">${isCall(x.dir) ? "CALL" : "PUT"} · L${(x.lvl||0)+1}</span></div>
+        <b class="${x.result === "WIN" ? "up" : x.result === "LOSS" ? "dn" : "mu"}">
+          ${x.profit == null ? x.result : sgn(x.profit)}
+        </b>
+      </div>`).join("");
+  } else {
+    $("recent").innerHTML = '<div class="mu">Abhi koi trade nahi.</div>';
+  }
+
+  // stats
+  $("sW").textContent = W;
+  $("sL").textContent = L;
+  $("sD").textContent = D;
+  $("accBar").style.width = (acc || 0) + "%";
+  const fw = h.filter(x => x.first === "W").length;
+  const fl = h.filter(x => x.first === "L").length;
+  $("fAcc").textContent = (fw + fl) ? (fw * 100 / (fw + fl)).toFixed(1) + "%" : "N/A";
+  $("last10").innerHTML = h.slice(-10).map(x => 
+    `<div class="dot" style="background:${x.result === "WIN" ? "var(--ok)" : x.result === "LOSS" ? "var(--bad)" : "#888"}"></div>`
+  ).join("") || '<span class="mu">—</span>';
+  $("totPnl").textContent = sgn(h.reduce((a,b) => a + (b.profit || 0), 0));
+
+  // history
+  if (h.length){
+    $("hist").innerHTML = h.slice(-30).reverse().map(x => {
+      const d = new Date(x.t*1000);
+      return `<div class="row">
+        <div>${d.toTimeString().slice(0,5)} ${x.pair}
+          <div class="mu" style="font-size:12px">${isCall(x.dir) ? "CALL" : "PUT"} · L${(x.lvl||0)+1}</div>
+        </div>
+        <b class="${x.result === "WIN" ? "up" : x.result === "LOSS" ? "dn" : "mu"}">${x.result}</b>
+      </div>`;
+    }).join("");
+  } else {
+    $("hist").innerHTML = '<div class="mu">Khali</div>';
+  }
+
+  // settings chips
+  chips("strat", Object.entries(STRATS), v => S.strategy === v, v => S.strategy = v);
+  chips("minsc", [60,65,70].map(v => [v, v+"+"]), v => S.minscore === v, v => S.minscore = v);
+
+chips("exp", [1,2,3,5].map(v => [v, v+" min"]), v => S.expiry === v, v => S.expiry = v);
+  chips("stake", [100,200,300,400,500].map(v => [v, ""+v]), v => S.stake === v, v => S.stake = v);
+  chips("mtg", MTG, v => S.mtg === v, v => S.mtg = v);
+  chips("tgt", [0,5,10].map(v => [v, v ? v+"%" : "OFF"]), v => S.target === v, v => S.target = v);
+  chips("pairs", PAIRS.map(p => [p,p]), p => S.pairs.includes(p), p => {
+    const i = S.pairs.indexOf(p);
+    if (i >= 0){ if (S.pairs.length > 1) S.pairs.splice(i,1); }
+    else S.pairs.push(p);
+  });
+
+  // ladder
+  const lad = ladder(S.stake, 4);
+  $("ladder").innerHTML =
+    lad.map((a,i) => `L${i+1}: <b style="color:var(--tx)">${a}</b>`).join(" › ") +
+    `<br>Total risk: <b style="color:var(--tx)">${lad.reduce((a,b) => a+b, 0).toFixed(0)}</b>`;
+
+  if (document.activeElement !== $("cap")) $("cap").value = S.capital;
+  if (document.activeElement !== $("risk")) $("risk").value = S.risk_cap || 0;
+
+
+  // Additive profile and active-contract status; does not alter trading controls.
+  const prof = S.profile || {};
+  if ($("profileName")) $("profileName").textContent = (prof.name || "TRADER BHIMO") + " · " + (prof.role || "ADMIN");
+  if ($("profileLogin")) $("profileLogin").textContent = prof.login_id_label || "ADMIN";
+  if ($("todayPnl")) {
+    $("todayPnl").textContent = sgn(prof.today_pnl || 0);
+    $("todayPnl").className = (prof.today_pnl || 0) >= 0 ? "up" : "dn";
+  }
+  if ($("todayDate") && prof.date_ist) $("todayDate").textContent = formatISTDate(prof.date_ist);
+  const active = S.active_trade;
+  if ($("activeTradeCard")) {
+    $("activeTradeCard").style.display = active ? "block" : "none";
+    if (active) {
+      $("activeTradeInfo").textContent = active.recovery_required
+        ? `RECOVERY REQUIRED · ${active.pair || ""} · ${active.direction || ""} · L${(active.level || 0)+1}. Contract ID unavailable; verify old record.`
+        : `${active.pair || ""} · ${active.direction || ""} · L${(active.level || 0)+1} · ${active.account || ""}`;
+      const rem = Math.max(0, Number(active.remaining_sec || 0));
+      $("tradeCountdown").textContent = active.recovery_required
+        ? "VERIFY"
+        : String(Math.floor(rem/60)).padStart(2,"0") + ":" + String(rem%60).padStart(2,"0");
+    }
+  }
+
+  renderFeed();
+}
+
+/* ============================================================
+   ACTIONS
+============================================================ */
+async function save(){
+  const body = {
+    strategy: S.strategy, minscore: S.minscore, expiry: S.expiry,
+    stake: S.stake, mtg: S.mtg,
+    capital: +$("cap").value || S.capital,
+    target: S.target,
+    risk_cap: +$("risk").value || 0,
+    pairs: S.pairs
+  };
+  S.capital = body.capital;
+  S.risk_cap = body.risk_cap;
+  try{
+    await api("/settings", body);
+    dirty = false;
+    toast("Saved ✓");
+    load();
+  } catch(e){
+    toast("Error: " + e.message);
+  }
+}
+$("clearHistoryBtn").onclick = async () => {
+  if (!await ask("Sirf trade history clear hogi. Martingale level, settings aur pending trade nahi badlenge. Continue?")) return;
+  try {
+    await api("/history/clear", {});
+    toast("History cleared");
+    await load();
+  } catch(e) { toast("History clear nahi hui: " + e.message); }
+};
+$("saveBtn").onclick = () => save();
+
+$("cap").oninput = () => { dirty = true; };
+$("risk").oninput = () => { dirty = true; };
+
+$("pVol").onclick = () => { dirty = true; S.pairs = PAIRS.filter(p => p.startsWith("Vol")); render(); };
+$("pFx").onclick = () => { dirty = true; S.pairs = PAIRS.filter(p => !p.startsWith("Vol")); render(); };
+$("pAll").onclick = () => { dirty = true; S.pairs = PAIRS.slice(); render(); };
+
+$("autoBtn").onclick = async () => {
+  const turnOn = !S.auto;
+  if (turnOn && S.account === "REAL"){
+    const ok = await ask("LIVE account par REAL paisa lagega. Auto-trade ON karein?");
+    if (!ok) return;
+  }
+  try{
+    await api("/auto", {on: turnOn});
+    S.auto = turnOn;
+    toast(turnOn ? "Auto ON" : "Auto OFF");
+  } catch(e){
+    toast("Error: " + e.message);
+  }
+  render();
+};
+
+$("pauseBtn").onclick = async () => {
+  try{
+    await api("/pause", {paused: !S.paused});
+    S.paused = !S.paused;
+  } catch(e){
+    toast("Error: " + e.message);
+  }
+  render();
+};
+
+/* ============================================================
+   ACCOUNT SWITCHING (DEMO <-> REAL) — FULL SAFETY
+============================================================ */
+document.querySelectorAll("#acctSeg button").forEach(b => {
+  b.onclick = async () => {
+    const target = b.dataset.a;
+    if (target === S.account) return;
+
+    // 1: Auto-trade chal raha ho to block
+    if (S.auto){
+      toast("Pehle auto-trade band karein");
+      return;
+    }
+
+    // 2: Server-side REAL permission
+    if (target === "REAL" && S.allow_real !== true){
+      toast("Server par REAL band hai (ALLOW_REAL=false)");
+      return;
+    }
+
+    // 3: REAL switch = double confirmation (Telegram-safe)
+    if (target === "REAL"){
+      const ok1 = await ask("⚠️ LIVE ACCOUNT: Is account mein REAL paisa lagega. Balance, PnL aur trades real honge. Switch karein?");
+      if (!ok1) return;
+      const ok2 = await ask("Dobara confirm karein: sach mein LIVE account par switch karna hai?");
+      if (!ok2){
+        toast("Switch cancel kiya");
+        return;
+      }
+    }
+
+    // 4: Switch API call
+    const prev = S.account;
+    try{
+      b.disabled = true;
+      $("status").textContent = "Switching to " + target + "...";
+
+      await api("/account", {account: target});
+      dirty = false;
+      await load();
+      if (S.account !== target) throw new Error("Server ne account switch confirm nahi kiya");
+      toast(target === "REAL" ? "🔴 LIVE account verified" : "🟢 Demo account verified");
+    } catch(e){
+      toast("Switch fail: " + e.message);
+      S.account = prev;   // rollback
+    } finally {
+      b.disabled = false;
+    }
+    render();
+  };
+});
+
+/* ============================================================
+   NAV
+============================================================ */
+document.querySelectorAll("nav button").forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x === b));
+    document.querySelectorAll(".page").forEach(p => p.classList.toggle("on", p.id === "p-" + b.dataset.p));
+    window.scrollTo(0,0);
+    haptic();
+  };
+});
+
+/* TWB countdown display tick; backend refresh remains authoritative */
+setInterval(() => {
+  const el = $("tradeCountdown");
+  if (!el || $("activeTradeCard").style.display === "none" || el.textContent === "VERIFY") return;
+  const m = el.textContent.match(/^(\d+):(\d+)$/);
+  if (m) {
+    const n = Math.max(0, (+m[1])*60 + (+m[2]) - 1);
+    el.textContent = String(Math.floor(n/60)).padStart(2,"0") + ":" + String(n%60).padStart(2,"0");
+  }
+}, 1000);
+
+/* ============================================================
+   LIVE POLLING
+============================================================ */
+function live(){
+  if (API_BASE && !livePollTimer) livePollTimer = setInterval(() => { if (APP_SESSION) load(); }, 5000);
+}
+
+
+let livePollTimer = null;
+function clearAppSession(){
+  APP_SESSION = "";
+  try { sessionStorage.removeItem("twb_admin_session"); } catch(e){}
+  if (livePollTimer) { clearInterval(livePollTimer); livePollTimer = null; }
+}
+async function doLogout(){
+  try { if (APP_SESSION) await api("/logout", {}); } catch(e){}
+  clearAppSession();
+  $("loginPassword").value = "";
+  $("loginError").textContent = "Logout ho gaya. Dobara login karein.";
+  showLogin();
+}
+$("logoutBtn").onclick = async () => {
+  if (await ask("Kya aap TWB Forex Hunter se logout karna chahte hain?")) await doLogout();
+};
+async function doLogin(){
+  const id=$("loginId").value.trim(), password=$("loginPassword").value;
+  $("loginError").textContent=""; $("loginBtn").disabled=true;
+  try{
+    const r=await fetch(API_BASE+"/login",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({login_id:id,password})});
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.detail||"Login failed");
+    APP_SESSION=d.token; sessionStorage.setItem("twb_admin_session",APP_SESSION);
+    $("loginScreen").style.display="none"; $("appShell").classList.remove("app-locked");
+    await load();
+    if (APP_SESSION) live();
+  }catch(e){$("loginError").textContent=e.message}
+  finally{$("loginBtn").disabled=false}
+}
+$("loginBtn").onclick=doLogin;
+$("loginPassword").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin()});
+function showLogin(){
+  if(APP_SESSION){
+    $("loginScreen").style.display="none";
+    $("appShell").classList.remove("app-locked");
+    load(); live();
+  }else{
+    $("loginScreen").style.display="flex";
+    $("appShell").classList.add("app-locked");
+  }
+}
+function updateISTClock(){
+  $("istClock").textContent=new Intl.DateTimeFormat("en-IN",{timeZone:"Asia/Kolkata",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true}).format(new Date())+" IST";
+}
+function formatISTDate(value){
+  let date = new Date();
+  const m = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) date = new Date(Date.UTC(Number(m[1]), Number(m[2])-1, Number(m[3]), 12));
+  return new Intl.DateTimeFormat("en-IN",{timeZone:"Asia/Kolkata",day:"2-digit",month:"short",year:"numeric"}).format(date);
+}
+function updateISTDate(){
+  const dateEl=$("todayDate");
+  if(dateEl && (!S.profile || !S.profile.date_ist)) dateEl.textContent=formatISTDate();
+}
+setInterval(updateISTClock,1000);
+updateISTClock();
+updateISTDate();
+
+showLogin();
+</script>
+</div>
+</body>
+      </html>
