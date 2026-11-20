@@ -1,0 +1,1034 @@
+
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>TWB Forex Hunter</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{
+  --bg:#03090b;
+  --card:rgba(6,28,26,.88);
+  --card2:rgba(0,255,168,.075);
+  --tx:#E3FFF5;
+  --mu:#7FA89B;
+  --ac:#00FFA8;
+  --ac2:#00C98A;
+  --ok:#00FFA8;
+  --bad:#FF3D9A;
+  --gold:#FFC857;
+  --pink:#FF3D9A;
+  --r:18px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;
+  background:radial-gradient(120% 60% at 50% 0%,#14306b 0%,var(--bg) 60%) no-repeat,var(--bg);
+  color:var(--tx);
+  font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  padding:0 16px 110px;
+  min-height:100vh;
+  transition:background .3s;
+}
+body.real-mode{
+  background:radial-gradient(120% 60% at 50% 0%,#7f1d1d 0%,var(--bg) 60%) no-repeat,var(--bg);
+}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 0 10px;gap:8px}
+.brand{font-weight:800;font-size:18px;letter-spacing:.3px}
+.brand small{display:block;color:var(--mu);font-weight:500;font-size:11px;letter-spacing:0}
+.pill{background:var(--ac);padding:7px 12px;border-radius:12px;font-weight:700;font-size:13px}
+.card{
+  background:var(--card);
+  border:1px solid rgba(120,160,255,.18);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  box-shadow:0 8px 32px rgba(0,0,0,.35);
+  border-radius:var(--r);
+  padding:18px;
+  margin:12px 0;
+}
+.seg{display:inline-flex;background:rgba(5,11,28,.6);border-radius:12px;padding:3px;gap:2px}
+.seg button{border:0;background:none;color:var(--mu);padding:8px 14px;border-radius:10px;font-weight:600;font-size:14px}
+.seg button.on{background:var(--ac);color:#fff}
+.seg button.on[data-a="REAL"]{background:#dc2626}
+.seg button:disabled{opacity:.5;cursor:not-allowed}
+.lbl{color:var(--mu);font-size:13px;margin-top:14px}
+.big{font-size:40px;font-weight:800;letter-spacing:-1px;color:#fff}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.tile{background:var(--card2);border-radius:16px;padding:12px;border:1px solid rgba(120,160,255,.12)}
+.tile span{color:var(--mu);font-size:12px;display:block}
+.tile b{font-size:20px}
+.btn{
+  width:100%;border:0;border-radius:16px;padding:14px;font-size:16px;font-weight:700;color:#fff;
+  background:linear-gradient(90deg,var(--ac),var(--ac2));margin-top:14px;
+}
+.btn:disabled{opacity:.5}
+.btn.stop{background:var(--card2);color:var(--bad);border:1px solid var(--bad)}
+.btn.ghost{background:rgba(245,184,46,.12);color:var(--gold);border:1px solid rgba(245,184,46,.45)}
+.btn-row{display:flex;gap:8px;margin-top:12px}
+#autoBtn,#pauseBtn{width:auto;flex:1;padding:9px 10px;font-size:13px;border-radius:12px;margin-top:0}
+.row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid rgba(120,160,255,.1)}
+.row:last-child{border:0}
+.up{color:var(--ok)}.dn{color:var(--bad)}.mu{color:var(--mu)}
+.bar{height:8px;border-radius:6px;background:var(--card2);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--gold))}
+.badge{display:inline-block;padding:3px 10px;border-radius:10px;font-weight:700;font-size:12px}
+.badge.call{background:rgba(34,197,94,.15);color:var(--ok)}
+.badge.put{background:rgba(239,68,68,.15);color:var(--bad)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{border:1px solid rgba(255,255,255,.12);background:var(--card2);color:var(--tx);padding:8px 12px;border-radius:12px;font-size:13px}
+.chip.on{background:var(--ac);border-color:var(--ac)}
+h3{margin:0 0 4px;font-size:16px}
+nav{
+  position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-around;
+  background:rgba(8,18,44,.92);backdrop-filter:blur(10px);
+
+padding:10px 8px calc(10px + env(safe-area-inset-bottom));
+  border-top:1px solid rgba(120,160,255,.18);border-radius:24px 24px 0 0;
+}
+nav button{border:0;background:none;color:var(--mu);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 14px}
+nav button .i{font-size:22px}
+nav button.on{color:#fff}
+.page{display:none}.page.on{display:block}
+.dots{display:flex;gap:6px;margin-top:8px}.dot{width:14px;height:14px;border-radius:50%}
+input[type=number]{width:100%;background:var(--card2);border:1px solid rgba(120,160,255,.2);color:var(--tx);border-radius:12px;padding:12px;font-size:16px;margin-top:6px}
+.warn{background:rgba(245,184,46,.12);border:1px solid rgba(245,184,46,.45);color:#fcd34d;border-radius:14px;padding:10px 12px;font-size:13px;margin-top:12px}
+.warn.live{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.5);color:#fca5a5}
+.toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:#000c;padding:10px 16px;border-radius:12px;display:none;z-index:9;font-size:13px;max-width:90%}
+.ftbl{width:100%;border-collapse:collapse;font-size:12px}
+.ftbl th{color:var(--mu);font-weight:600;text-align:left;padding:6px 4px;border-bottom:1px solid rgba(120,160,255,.2)}
+.ftbl td{padding:8px 4px;border-bottom:1px solid rgba(120,160,255,.08)}
+.ftbl .win{color:var(--ok);font-weight:700}
+.ftbl .loss{color:var(--bad);font-weight:700}
+.ftbl .draw{color:var(--mu);font-weight:700}
+.pc-call{color:var(--ok)}
+.pc-put{color:var(--bad)}
+.feed-empty{color:var(--mu);font-size:13px;padding:8px 0}
+
+/* Admin login and profile add-ons */
+#loginScreen{position:fixed;inset:0;z-index:1000;overflow:hidden;background:radial-gradient(120% 60% at 50% 0%,#14306b 0%,#050b1c 65%);display:flex;align-items:center;justify-content:center;padding:22px}
+#loginCandles{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.58}
+#loginScreen .login-card{position:relative;z-index:1;width:100%;max-width:420px;background:rgba(18,38,82,.88);border:1px solid #4773c7;border-radius:24px;padding:24px;box-shadow:0 16px 48px #0008}
+.login-logo{width:112px;height:112px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;position:relative;isolation:isolate;background:radial-gradient(circle at 50% 35%,#123d36 0%,#041714 58%,#02090a 100%);border:2px solid #00ffa8;box-shadow:0 0 0 5px rgba(0,255,168,.08),0 0 24px rgba(0,255,168,.38),inset 0 0 18px rgba(0,255,168,.18);color:#f3fff9;font-family:system-ui,sans-serif;font-weight:900;letter-spacing:-1px;line-height:1;text-align:center;flex-direction:column;gap:4px}.login-logo:before{content:"";position:absolute;inset:6px;border:1px solid rgba(89,255,204,.55);border-radius:50%;z-index:-1}.login-logo .logo-twb{font-size:27px;text-shadow:0 0 10px rgba(0,255,168,.55)}.login-logo .logo-ai{font-size:17px;letter-spacing:4px;color:#00ffa8;text-shadow:0 0 10px rgba(0,255,168,.8);padding-left:4px}.login-logo .logo-bars{position:absolute;top:14px;right:25px;display:flex;align-items:flex-end;gap:3px;height:15px;opacity:.9}.login-logo .logo-bars i{display:block;width:3px;border-radius:2px;background:#00ffa8;box-shadow:0 0 5px #00ffa8}.login-logo .logo-bars i:nth-child(1){height:6px}.login-logo .logo-bars i:nth-child(2){height:10px}.login-logo .logo-bars i:nth-child(3){height:15px}
+.login-card h2{text-align:center;margin:4px 0}.login-card p{text-align:center;color:var(--mu);margin:0 0 18px}
+.login-card input{display:block;width:100%;margin:10px 0;background:#101f43;border:1px solid #45639d;border-radius:12px;padding:14px;color:#fff;font-size:16px}
+.login-card button{width:100%;border:0;border-radius:14px;padding:14px;margin-top:10px;background:linear-gradient(90deg,#3b82f6,#1d4ed8);color:white;font-weight:800;font-size:16px}
+#loginError{color:#fca5a5;font-size:13px;min-height:18px;margin-top:8px}
+#appShell.app-locked{display:none}
+/* Multi-Layer Live Market background: visual-only, isolated from app controls */
+#appShell{position:relative;isolation:isolate;}
+#marketBackdrop{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;opacity:.94;}
+#appShell>header,#appShell>.page,#appShell>nav,#appShell>.toast{position:relative;z-index:1;}
+#appShell>nav{z-index:5;}
+#appShell>.toast{z-index:10;}
+.ist-clock{font-size:12px;color:var(--gold);font-weight:700;text-align:right;white-space:nowrap}
+.profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.profile-cell{background:var(--card2);padding:12px;border-radius:14px;min-width:0}
+.profile-cell small{display:block;color:var(--mu);font-size:11px}
+.profile-cell b{display:block;font-size:15px;overflow-wrap:anywhere}
+.countdown{font-size:26px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums}
+
+
+/* ===== TWB BINARY HUNTER visual skin — trading behavior untouched ===== */
+body{background:radial-gradient(100% 45% at 50% 0%,#07352f 0%,var(--bg) 65%) fixed,var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body.real-mode{background:radial-gradient(100% 45% at 50% 0%,#4a1029 0%,var(--bg) 65%) fixed,var(--bg)}
+header{padding:18px 2px 14px}
+.brand{font-size:17px;letter-spacing:1.2px;color:#fff;text-shadow:0 0 14px rgba(0,255,168,.35)}
+.brand:before{content:"TWB  ◈  ";color:var(--ac);font-weight:900}
+.brand small{color:var(--mu);margin-top:3px}
+.pill{background:rgba(0,255,168,.10)!important;color:var(--ac);border:1px solid rgba(0,255,168,.45);border-radius:999px;letter-spacing:.7px}
+.card{background:linear-gradient(145deg,rgba(7,35,31,.94),rgba(4,17,19,.94));border:1px solid rgba(0,255,168,.23);box-shadow:0 12px 34px rgba(0,0,0,.34),inset 0 0 24px rgba(0,255,168,.025);border-radius:18px;padding:17px}
+.card h3{font-size:13px;letter-spacing:1.6px;text-transform:uppercase;color:var(--ac);margin-bottom:9px}
+.seg{background:rgba(0,0,0,.45);border:1px solid rgba(0,255,168,.2);border-radius:14px}
+.seg button{color:var(--mu);font-size:13px}
+.seg button.on{background:var(--ac);color:#03130e;box-shadow:0 0 18px rgba(0,255,168,.28)}
+.seg button.on[data-a="REAL"]{background:var(--pink);color:#fff}
+.big{color:#fff;text-shadow:0 0 18px rgba(0,255,168,.18);font-variant-numeric:tabular-nums}
+.tile,.profile-cell{background:rgba(0,255,168,.055);border:1px solid rgba(0,255,168,.12);border-radius:14px}
+.tile b{color:#f4fff9}
+.btn{background:linear-gradient(100deg,#00FFA8,#00C98A);color:#03130e;box-shadow:0 5px 20px rgba(0,255,168,.18);border-radius:13px}
+.btn.stop{background:rgba(255,61,154,.12);color:#FF7FBB;border-color:rgba(255,61,154,.65);box-shadow:none}
+.btn.ghost{background:rgba(255,200,87,.09);color:var(--gold);border:1px solid rgba(255,200,87,.38);box-shadow:none}
+.chip{background:rgba(0,255,168,.055);border:1px solid rgba(0,255,168,.18);color:var(--soft,#C4E6DA);border-radius:10px}
+.chip.on{background:rgba(0,255,168,.17);border-color:var(--ac);color:var(--ac);box-shadow:0 0 12px rgba(0,255,168,.12)}
+input[type=number],.pair-search{background:rgba(0,0,0,.32);border:1px solid rgba(0,255,168,.2);color:var(--tx);border-radius:12px}
+.warn{background:rgba(255,200,87,.09);border:1px solid rgba(255,200,87,.32);color:#FFD77D}
+.warn.live{background:rgba(255,61,154,.12);border-color:rgba(255,61,154,.48);color:#FF9BC8}
+nav{background:rgba(2,13,13,.96);border-top:1px solid rgba(0,255,168,.2);border-radius:22px 22px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,.28)}
+nav button.on{color:var(--ac)}
+nav button .i{filter:drop-shadow(0 0 5px rgba(0,255,168,.25))}
+.bar{background:rgba(0,255,168,.10)}
+.bar i{background:linear-gradient(90deg,#00FFA8,#FF3D9A)}
+.badge.call{background:rgba(0,255,168,.13);color:var(--ac)}
+.badge.put{background:rgba(255,61,154,.13);color:#FF7FBB}
+.up,.pc-call{color:var(--ac)}.dn,.pc-put{color:#FF7FBB}
+.ftbl th{border-color:rgba(0,255,168,.2)}.ftbl td{border-color:rgba(0,255,168,.09)}
+#loginScreen{background:radial-gradient(100% 45% at 50% 0%,#07352f 0%,#03090b 65%)}
+#loginScreen .login-card{background:rgba(6,28,26,.94);border:1px solid rgba(0,255,168,.42);box-shadow:0 18px 60px #000b,0 0 32px rgba(0,255,168,.09)}
+.login-logo{border-color:var(--ac);color:#E3FFF5;box-shadow:0 0 26px rgba(0,255,168,.32);font-family:system-ui;font-weight:900}
+.login-card button{background:linear-gradient(100deg,#00FFA8,#00C98A);color:#03130e}
+.login-card input{background:rgba(0,0,0,.32);border:1px solid rgba(0,255,168,.25);color:#fff}
+.ist-clock{color:var(--gold)}
+.countdown{color:var(--ac)}
+.pair-tools{display:grid;grid-template-columns:1fr;gap:9px;margin:8px 0 10px}
+.pair-search{width:100%;padding:12px 13px;font-size:14px;outline:none}
+.pair-filters{display:flex;gap:7px;flex-wrap:wrap}
+.pair-filters .chip{font-size:12px;padding:7px 10px}
+#pairs{max-height:310px;overflow:auto;padding:2px 2px 7px;scrollbar-width:thin}
+.pair-count{font-size:11px;color:var(--mu);margin:7px 0}
+@media(min-width:700px){body{max-width:560px;margin:0 auto}}
+</style>
+</head>
+<body>
+<div id="loginScreen">
+  <canvas id="loginCandles" aria-hidden="true"></canvas>
+  <div class="login-card">
+    <div class="login-logo" role="img" aria-label="TWB AI trading logo"><span class="logo-bars" aria-hidden="true"><i></i><i></i><i></i></span><span class="logo-twb">TWB</span><span class="logo-ai">A I</span></div>
+    <h2>TWB FOREX HUNTER</h2>
+    <p>TRADER BHIMO · ADMIN LOGIN</p>
+    <input id="loginId" type="text" autocomplete="username" placeholder="Login ID">
+    <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Password">
+    <button id="loginBtn" type="button">LOGIN</button>
+    <div id="loginError"></div>
+  </div>
+</div>
+<div id="appShell" class="app-locked">
+  <canvas id="marketBackdrop" aria-hidden="true"></canvas>
+
+<header>
+  <div class="brand">TWB FOREX HUNTER<small id="status">Connecting...</small></div>
+  <div class="ist-clock" id="istClock">--:--:-- IST</div>
+  <div class="pill" id="acctPill">DEMO</div>
+</header>
+
+<!-- TRADING -->
+
+<section class="page on" id="p-trade">
+  <div class="card" id="profileCard">
+    <h3>TRADER PROFILE</h3>
+    <div class="profile-grid">
+      <div class="profile-cell"><small>Name / Role</small><b id="profileName">TRADER BHIMO · ADMIN</b></div>
+      <div class="profile-cell"><small>Login ID</small><b id="profileLogin">ADMIN</b></div>
+      <div class="profile-cell"><small>Today's P/L</small><b id="todayPnl">$0.00</b></div>
+      <div class="profile-cell"><small>Date (IST)</small><b id="todayDate">—</b></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="seg" id="acctSeg">
+      <button data-a="DEMO" class="on">Demo mode</button>
+      <button data-a="REAL">Real account</button>
+    </div>
+    <div id="liveBanner" class="warn live" style="display:none">⚠️ LIVE ACCOUNT — Real paisa lagega. Dhyan se trade karein.</div>
+    <div class="lbl" id="balLbl">Demo balance</div>
+    <div class="big" id="bal">$0.00</div>
+    <div class="tiles">
+      <div class="tile"><span>Session PnL</span><b id="pnl">$0</b></div>
+      <div class="tile"><span>Trades</span><b id="tr">0</b></div>
+      <div class="tile"><span>Winrate</span><b id="wr">0%</b></div>
+    </div>
+    <div class="warn" id="balErr" style="display:none"></div>
+    <div class="warn" id="cfgWarn" style="display:none"></div>
+    <div class="btn-row">
+      <button class="btn" id="autoBtn">Start auto trading</button>
+      <button class="btn ghost" id="pauseBtn">Pause scanner</button>
+    </div>
+  </div>
+
+  <div class="card" id="activeTradeCard" style="display:none">
+    <h3>Trade Countdown</h3>
+    <div id="activeTradeInfo" class="mu">Contract status loading...</div>
+    <div class="countdown" id="tradeCountdown">--:--</div>
+    <div id="recoveryHelp" class="warn" style="display:none;margin-top:10px">Agar trade Deriv par buy nahi hua aur Contract ID nahi mila, yahin se pending marker resolve kar sakte hain.</div>
+    <button class="btn ghost" id="resolveTradeBtn" type="button" style="display:none;margin-top:10px">Resolve pending trade</button>
+  </div>
+
+  <div class="card">
+    <h3>Latest signal</h3>
+    <div id="sig" class="mu">Abhi koi signal nahi. Scanner har candle close par check karta hai.</div>
+  </div>
+
+  <div class="card">
+    <h3>Live feed</h3>
+    <div id="feedBox"><div class="feed-empty">Abhi koi trade nahi.</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Recent trades</h3>
+    <div id="recent"></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="page" id="p-stats">
+  <div class="card">
+    <h3>Performance</h3>
+    <div class="tiles">
+      <div class="tile"><span>Win</span><b class="up" id="sW">0</b></div>
+      <div class="tile"><span>Loss</span><b class="dn" id="sL">0</b></div>
+      <div class="tile"><span>Draw</span><b id="sD">0</b></div>
+    </div>
+    <div class="lbl">Accuracy</div><div class="bar"><i id="accBar" style="width:0"></i></div>
+    <div class="lbl">First trade accuracy</div><div class="big" style="font-size:26px" id="fAcc">N/A</div>
+    <div class="lbl">Last 10</div><div class="dots" id="last10"></div>
+    <div class="lbl">Total PnL</div><div class="big" style="font-size:26px" id="totPnl">$0</div>
+  </div>
+  <div class="card"><h3>History</h3><button class="btn ghost" id="clearHistoryBtn" type="button">Clear history</button><div id="hist"></div></div>
+</section>
+
+<!-- SETTINGS -->
+<section class="page" id="p-set">
+  <div class="card">
+    <h3>Strategy</h3>
+    <div class="chips" id="strat"></div>
+    <div class="lbl">Min strength</div>
+    <div class="chips" id="minsc"></div>
+    <div class="lbl">Expiry (min)</div>
+    <div class="chips" id="exp"></div>
+  </div>
+  <div class="card">
+    <h3>Money management</h3>
+    <div class="lbl">Fund (L1 stake)</div><div class="chips" id="stake"></div>
+    <div class="lbl">Martingale (x2.5)</div><div class="chips" id="mtg"></div>
+    <div class="lbl">Ladder</div><div id="ladder" class="mu"></div>
+    <div class="lbl">Capital</div><input type="number" id="cap" inputmode="decimal">
+    <div class="lbl">Target % (0 = OFF)</div><div class="chips" id="tgt"></div>
+    <div class="lbl">Risk capital (0 = auto 20%)</div><input type="number" id="risk" inputmode="decimal">
+    <button class="btn" id="saveBtn">Save settings</button>
+  </div>
+  <div class="card">
+    <h3>Deriv 1-Minute Markets</h3>
+    <div class="pair-tools">
+      <input id="pairSearch" class="pair-search" type="search" placeholder="Search pair / market..." autocomplete="off">
+      <div class="pair-filters">
+        <button class="chip on" id="pAll" type="button">All verified</button>
+        <button class="chip" id="pFx" type="button">Forex</button>
+        <button class="chip" id="pVol" type="button">Derived / Other</button>
+      </div>
+      <div class="pair-count" id="pairCount">Waiting for Deriv symbol verification...</div>
+    </div>
+    <div class="chips" id="pairs"></div>
+  </div>
+  <div class="warn">Signal strength sirf ranking hai, jeet ki guarantee nahi. Pehle Demo par test karein.</div>
+  <div class="card">
+    <h3>App account</h3>
+    <div class="mu" style="margin-bottom:10px">App se logout karne par is device ki login session band ho jayegi. Trading account ya history delete nahi hogi.</div>
+    <button class="btn ghost" id="logoutBtn" type="button">Logout from app</button>
+  </div>
+</section>
+
+<nav>
+  <button class="on" data-p="trade"><span class="i">📈</span>Trading</button>
+  <button data-p="stats"><span class="i">📊</span>Stats</button>
+  <button data-p="set"><span class="i">⚙️</span>Settings</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   CONFIG
+============================================================ */
+const API_BASE = "https://twb-api.onrender.com";
+const tg = window.Telegram && Telegram.WebApp;
+let APP_SESSION = sessionStorage.getItem("twb_admin_session") || "";
+if (tg) {
+  tg.ready(); tg.expand();
+  try { tg.setHeaderColor("#03090b"); tg.setBackgroundColor("#03090b"); } catch(e){}
+}
+
+const PAIRS = ["EUR/USD","GBP/USD","USD/JPY","AUD/USD","USD/CAD","Volatility 10","Volatility 25","Volatility 50","Volatility 75","Volatility 100","Volatility 10 (1s)","Volatility 25 (1s)","Volatility 30 (1s)","Volatility 50 (1s)","Volatility 75 (1s)","Volatility 90 (1s)","Volatility 100 (1s)","Volatility 150 (1s)","Volatility 250 (1s)"];
+let pairFilter = "all";
+let pairSearchText = "";
+function verifiedPairs(){
+  return Array.isArray(S.all_pairs) && S.all_pairs.length ? S.all_pairs : PAIRS;
+}
+function marketType(pair){
+  const m = String((S.pair_markets || {})[pair] || "").toLowerCase();
+  return m.includes("forex") ? "forex" : "other";
+}
+const STRATS = {PIXEL:"Hyper Pixel",APEX:"Hyper Apex",ARF:"Adaptive Range",BOTH:"Pixel+Apex",ALL:"Teeno",VINI:"VINI"};
+const MTG = [[0,"No MTG"],[1,"MTG-1"],[2,"MTG-2"],[3,"MTG-3"],[4,"MTG-4"]];
+const MULT = 2.5;
+
+let dirty = false;
+const SETKEYS = ["strategy","minscore","expiry","stake","mtg","capital","target","risk_cap","pairs"];
+let S = {
+  account:"DEMO", auto:false, paused:false, balance:0, pnl:0,
+  strategy:"PIXEL", minscore:60, expiry:1, stake:100, mtg:1,
+  capital:1000, target:0, risk_cap:0, pairs:PAIRS.slice(),
+  signal:null, history:[],
+  allow_real:false, configured:false, balance_error:null
+};
+
+/* ============================================================
+   HELPERS
+============================================================ */
+const $ = id => document.getElementById(id);
+const money = v => v == null ? "—" : (v<0?"-":"") + "$" + Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const sgn = v => (v>=0?"+":"-") + "$" + Math.abs(v).toFixed(2);
+
+// CALL/BUY dono ko CALL maanta hai, baaki sab PUT
+const isCall = d => { const x = String(d || "").toUpperCase(); return x === "BUY" || x === "CALL"; };
+
+// Telegram-safe confirm (prompt/confirm Telegram mein aksar block hote hain)
+const ask = m => new Promise(res => {
+  try {
+    if (tg && tg.showConfirm && tg.isVersionAtLeast && tg.isVersionAtLeast("6.2")) {
+      tg.showConfirm(m, ok => res(!!ok));
+      return;
+    }
+  } catch(e){}
+  res(confirm(m));
+});
+
+function toast(m){
+  const t = $("toast");
+  t.textContent = m;
+  t.style.display = "block";
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.style.display = "none", 2500);
+}
+
+function chips(id, items, isOn, onTap){
+  const el = $(id); el.innerHTML = "";
+  items.forEach(([v,label]) => {
+    const b = document.createElement("button");
+    b.className = "chip" + (isOn(v) ? " on" : "");
+    b.textContent = label;
+    b.onclick = () => { onTap(v); dirty = true; render(); haptic(); };
+    el.appendChild(b);
+  });
+}
+
+function haptic(){
+  try { tg.HapticFeedback.selectionChanged(); } catch(e){}
+}
+
+function ladder(stake, n){
+  const o = []; let a = stake;
+  for (let i=0; i<=n; i++){ o.push(a); a = Math.round(a * MULT * 100) / 100; }
+  return o;
+}
+
+/* ============================================================
+   API
+============================================================ */
+async function api(path, body){
+  if (!API_BASE) return null;
+  const r = await fetch(API_BASE + path, {
+    method: body ? "POST" : "GET",
+    headers: {
+      "Content-Type":"application/json",
+      "X-App-Session": APP_SESSION
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (!r.ok) {
+    let msg = r.status;
+    try { msg = (await r.text()) || r.status; } catch(e){}
+    throw new Error(msg);
+  }
+  return r.json();
+}
+
+async function load(){
+  try{
+    const d = await api("/state");
+    if (d){
+      if (dirty){
+        const keep = {};
+        SETKEYS.forEach(k => keep[k] = S[k]);
+        S = Object.assign(S, d, keep);
+      } else {
+        S = Object.assign(S, d);
+      }
+      if (Array.isArray(S.all_pairs) && S.all_pairs.length) {
+        S.pairs = (S.pairs || []).filter(p => S.all_pairs.includes(p));
+        if (!S.pairs.length) S.pairs = S.all_pairs.slice();
+      }
+      $("status").textContent = d.status || "Connected";
+    } else {
+      $("status").textContent = "Backend URL missing";
+    }
+  } catch(e){
+    $("status").textContent = "Server error";
+    S.balance = null;
+    S.balance_error = e.message;
+    toast("Backend: " + e.message);
+  }
+  render();
+}
+
+
+/* ============================================================
+   LIVE FEED
+============================================================ */
+function renderFeed(){
+  const box = $("feedBox");
+  if (!box) return;
+  const h = (S.history || []).slice().reverse().slice(0, 20);
+  if (!h.length){
+    box.innerHTML = '<div class="feed-empty">Abhi koi trade nahi.</div>';
+    return;
+  }
+  let rows = "";
+  h.forEach(t => {
+    const call = isCall(t.dir);
+    const pc = call ? "CALL" : "PUT";
+    const pcCls = call ? "pc-call" : "pc-put";
+    const time = new Date(t.t*1000).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});
+    const res = t.result || "";
+    const resCls = res === "WIN" ? "win" : res === "LOSS" ? "loss" : "draw";
+    const emoji = res === "WIN" ? " 🎉" : res === "LOSS" ? " 😢" : "";
+    rows += `<tr>
+      <td>${t.pair || "-"}</td>
+      <td class="${pcCls}">${pc}</td>
+      <td>${time}</td>
+      <td class="${resCls}">${res}${emoji}</td>
+    </tr>`;
+  });
+  box.innerHTML = `<table class="ftbl">
+    <thead><tr><th>Pair</th><th>Put/Call</th><th>Entry</th><th>Win/Loss</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+/* ============================================================
+   RENDER
+============================================================ */
+function render(){
+  const h = S.history || [];
+  const W = h.filter(x => x.result === "WIN").length;
+  const L = h.filter(x => x.result === "LOSS").length;
+  const D = h.filter(x => x.result === "DRAW").length;
+  const acc = (W + L) ? W * 100 / (W + L) : null;
+
+  // account pill
+  $("acctPill").textContent = S.account === "REAL" ? "🔴 LIVE" : "🟢 DEMO";
+  $("acctPill").style.background = S.account === "REAL" ? "#dc2626" : "var(--ac)";
+  document.body.classList.toggle("real-mode", S.account === "REAL");
+  $("liveBanner").style.display = S.account === "REAL" ? "block" : "none";
+
+// segment buttons
+  document.querySelectorAll("#acctSeg button").forEach(b => {
+    b.classList.toggle("on", b.dataset.a === S.account);
+    if (b.dataset.a === "REAL"){
+      b.disabled = (S.allow_real !== true);
+      b.title = (S.allow_real !== true) ? "Server par REAL permission enabled nahi hai" : "";
+    }
+  });
+
+  $("balLbl").textContent = S.account === "REAL" ? "Your real balance" : "Your demo balance";
+  $("bal").textContent = money(S.balance);
+
+  const be = $("balErr");
+  be.style.display = S.balance_error ? "block" : "none";
+  be.textContent = "Balance error: " + (S.balance_error || "");
+
+  const cw = $("cfgWarn");
+  const bad = !!API_BASE && S.configured === false;
+  cw.style.display = bad ? "block" : "none";
+  cw.textContent = "Is account ke liye server par ID/token set nahi hai (Render env vars check karein).";
+
+  $("pnl").textContent = sgn(S.pnl || 0);
+  $("pnl").className = (S.pnl || 0) >= 0 ? "up" : "dn";
+  $("tr").textContent = h.length;
+  $("wr").textContent = acc == null ? "0%" : acc.toFixed(0) + "%";
+
+  const ab = $("autoBtn");
+  ab.textContent = S.auto ? "Stop auto" : "Start auto";
+  ab.className = "btn" + (S.auto ? " stop" : "");
+  $("pauseBtn").textContent = S.paused ? "Resume" : "Pause";
+
+  // signal
+  const g = S.signal;
+  if (g){
+    const gc = isCall(g.sig);
+    $("sig").innerHTML = `
+      <div class="row" style="border:0">
+        <div>
+          <b style="font-size:18px">${g.pair}</b>
+          <div class="mu" style="font-size:12px">${g.tag} · ${g.price}</div>
+        </div>
+        <span class="badge ${gc ? "call" : "put"}">
+          ${gc ? "CALL ⬆" : "PUT ⬇"}
+        </span>
+      </div>
+      <div class="mu" style="font-size:13px">Strength <b style="color:var(--tx)">${g.score}/100</b></div>
+      <div class="bar"><i style="width:${g.score}%"></i></div>`;
+  } else {
+    $("sig").innerHTML = "Abhi koi signal nahi. Scanner har candle close par check karta hai.";
+  }
+
+  // recent
+  const rec = h.slice(-6).reverse();
+  if (rec.length){
+    $("recent").innerHTML = rec.map(x => 
+      `<div class="row">
+        <div>${x.pair} <span class="mu">${isCall(x.dir) ? "CALL" : "PUT"} · L${(x.lvl||0)+1}</span></div>
+        <b class="${x.result === "WIN" ? "up" : x.result === "LOSS" ? "dn" : "mu"}">
+          ${x.profit == null ? x.result : sgn(x.profit)}
+        </b>
+      </div>`).join("");
+  } else {
+    $("recent").innerHTML = '<div class="mu">Abhi koi trade nahi.</div>';
+  }
+
+  // stats
+  $("sW").textContent = W;
+  $("sL").textContent = L;
+  $("sD").textContent = D;
+  $("accBar").style.width = (acc || 0) + "%";
+  const fw = h.filter(x => x.first === "W").length;
+  const fl = h.filter(x => x.first === "L").length;
+  $("fAcc").textContent = (fw + fl) ? (fw * 100 / (fw + fl)).toFixed(1) + "%" : "N/A";
+  $("last10").innerHTML = h.slice(-10).map(x => 
+    `<div class="dot" style="background:${x.result === "WIN" ? "var(--ok)" : x.result === "LOSS" ? "var(--bad)" : "#888"}"></div>`
+  ).join("") || '<span class="mu">—</span>';
+  $("totPnl").textContent = sgn(h.reduce((a,b) => a + (b.profit || 0), 0));
+
+  // history
+  if (h.length){
+    $("hist").innerHTML = h.slice(-30).reverse().map(x => {
+      const d = new Date(x.t*1000);
+      return `<div class="row">
+        <div>${d.toTimeString().slice(0,5)} ${x.pair}
+          <div class="mu" style="font-size:12px">${isCall(x.dir) ? "CALL" : "PUT"} · L${(x.lvl||0)+1}</div>
+        </div>
+        <b class="${x.result === "WIN" ? "up" : x.result === "LOSS" ? "dn" : "mu"}">${x.result}</b>
+      </div>`;
+    }).join("");
+  } else {
+    $("hist").innerHTML = '<div class="mu">Khali</div>';
+  }
+
+  // settings chips
+  chips("strat", Object.entries(STRATS), v => S.strategy === v, v => S.strategy = v);
+  chips("minsc", [60,65,70].map(v => [v, v+"+"]), v => S.minscore === v, v => S.minscore = v);
+
+chips("exp", [1,2,3,5].map(v => [v, v+" min"]), v => S.expiry === v, v => S.expiry = v);
+  chips("stake", [100,200,300,400,500].map(v => [v, ""+v]), v => S.stake === v, v => S.stake = v);
+  chips("mtg", MTG, v => S.mtg === v, v => S.mtg = v);
+  chips("tgt", [0,5,10].map(v => [v, v ? v+"%" : "OFF"]), v => S.target === v, v => S.target = v);
+  const universe = verifiedPairs();
+  const shownPairs = universe.filter(p => {
+    const typeOk = pairFilter === "all" || marketType(p) === pairFilter;
+    const searchOk = !pairSearchText || p.toLowerCase().includes(pairSearchText);
+    return typeOk && searchOk;
+  });
+  const pairErrors = S.pair_errors || {};
+  chips("pairs", shownPairs.map(p => [p, pairErrors[p] ? `${p} · unavailable` : p]), p => S.pairs.includes(p), p => {
+    const i = S.pairs.indexOf(p);
+    if (i >= 0){ if (S.pairs.length > 1) S.pairs.splice(i,1); }
+    else S.pairs.push(p);
+  });
+  const pc = $("pairCount");
+  if (pc) pc.textContent = `${universe.length} Deriv pair candidates · ${S.pairs.length} selected. Rejected pairs will be skipped with a message.`; 
+  [["pAll","all"],["pFx","forex"],["pVol","other"]].forEach(([id,key]) => {
+    const el = $(id); if (el) el.classList.toggle("on", pairFilter === key);
+  });
+
+  // ladder
+  const lad = ladder(S.stake, 4);
+  $("ladder").innerHTML =
+    lad.map((a,i) => `L${i+1}: <b style="color:var(--tx)">${a}</b>`).join(" › ") +
+    `<br>Total risk: <b style="color:var(--tx)">${lad.reduce((a,b) => a+b, 0).toFixed(0)}</b>`;
+
+  if (document.activeElement !== $("cap")) $("cap").value = S.capital;
+  if (document.activeElement !== $("risk")) $("risk").value = S.risk_cap || 0;
+
+
+  // Additive profile and active-contract status; does not alter trading controls.
+  const prof = S.profile || {};
+  if ($("profileName")) $("profileName").textContent = (prof.name || "TRADER BHIMO") + " · " + (prof.role || "ADMIN");
+  if ($("profileLogin")) $("profileLogin").textContent = prof.login_id_label || "ADMIN";
+  if ($("todayPnl")) {
+    $("todayPnl").textContent = sgn(prof.today_pnl || 0);
+    $("todayPnl").className = (prof.today_pnl || 0) >= 0 ? "up" : "dn";
+  }
+  if ($("todayDate") && prof.date_ist && $("todayDate").textContent !== prof.date_ist) $("todayDate").textContent = prof.date_ist;
+  const active = S.active_trade;
+  if ($("activeTradeCard")) {
+    $("activeTradeCard").style.display = active ? "block" : "none";
+    if (active) {
+      $("activeTradeInfo").textContent = active.recovery_required
+        ? `RECOVERY REQUIRED · ${active.pair || ""} · ${active.direction || ""} · L${(active.level || 0)+1}. Contract ID unavailable; verify old record.`
+        : `${active.pair || ""} · ${active.direction || ""} · L${(active.level || 0)+1} · ${active.account || ""}`;
+      const rem = Math.max(0, Number(active.remaining_sec || 0));
+      $("tradeCountdown").textContent = active.recovery_required
+        ? "VERIFY"
+        : String(Math.floor(rem/60)).padStart(2,"0") + ":" + String(rem%60).padStart(2,"0");
+      const canResolve = String(active.account || "").toUpperCase() === "DEMO";
+      $("recoveryHelp").style.display = "block";
+      $("resolveTradeBtn").style.display = "block";
+      $("resolveTradeBtn").disabled = !canResolve;
+      $("resolveTradeBtn").textContent = canResolve ? "Manually mark as resolved" : "DEMO recovery only";
+    } else {
+      $("resolveTradeBtn").style.display = "none";
+      $("recoveryHelp").style.display = "none";
+    }
+  }
+
+  renderFeed();
+}
+
+/* ============================================================
+   ACTIONS
+============================================================ */
+async function save(){
+  const body = {
+    strategy: S.strategy, minscore: S.minscore, expiry: S.expiry,
+    stake: S.stake, mtg: S.mtg,
+    capital: +$("cap").value || S.capital,
+    target: S.target,
+    risk_cap: +$("risk").value || 0,
+    pairs: S.pairs
+  };
+  S.capital = body.capital;
+  S.risk_cap = body.risk_cap;
+  try{
+    await api("/settings", body);
+    dirty = false;
+    toast("Saved ✓");
+    load();
+  } catch(e){
+    toast("Error: " + e.message);
+  }
+}
+$("resolveTradeBtn").onclick = async () => {
+  const active = S.active_trade || {};
+  if (String(active.account || "").toUpperCase() !== "DEMO") {
+    toast("Manual recovery filhaal sirf DEMO marker ke liye hai.");
+    return;
+  }
+  const pair = String(active.pair || "").trim();
+  if (!pair) { toast("Pending pair identify nahi hua."); return; }
+  const hasId = !!active.contract_id;
+  const promptText = hasId
+    ? `Deriv app mein contract ${active.contract_id} kholkar confirm karein ki woh ab OPEN nahi hai aur settle/close ho chuka hai. Agar abhi open hai to Cancel karein. Kya aapne verify kiya?`
+    : `${pair} ka DEMO trade Deriv par BUY nahi hua tha / koi open contract nahi hai? Sirf tab confirm karein.`;
+  const ok = await ask(promptText);
+  if (!ok) return;
+  const typed = window.prompt("Safety confirmation ke liye exact text type karein: I CHECKED DERIV AND CONFIRM NO OPEN CONTRACT");
+  if (typed !== "I CHECKED DERIV AND CONFIRM NO OPEN CONTRACT") { toast("Confirmation match nahi hua; recovery cancel."); return; }
+  const b = $("resolveTradeBtn"); b.disabled = true;
+  try {
+    const result = await api("/recovery/clear-stale-marker", {confirm: pair, account: "DEMO", contract_id: active.contract_id || null, manual_confirm: typed});
+    dirty = false;
+    await load();
+    toast((result && result.message) || "Pending trade resolved ✓");
+  } catch(e) {
+    toast("Resolve nahi hua: " + e.message);
+  } finally { b.disabled = false; }
+};
+
+async function doLogout(){
+  const ok = await ask("App se logout karna hai? Trading history aur settings safe rahengi.");
+  if (!ok) return;
+  try { if (APP_SESSION) await api("/logout", {}); } catch(e) { /* local logout still clears this device session */ }
+  APP_SESSION = "";
+  sessionStorage.removeItem("twb_admin_session");
+  S.auto = false;
+  $("loginPassword").value = "";
+  $("loginScreen").style.display = "flex";
+  $("appShell").classList.add("app-locked");
+  toast("Logged out");
+}
+$("logoutBtn").onclick = doLogout;
+
+$("clearHistoryBtn").onclick = async () => {
+  if (!confirm("Sirf trade history clear hogi. Martingale level, settings aur pending trade nahi badlenge. Continue?")) return;
+  try {
+    await api("/history/clear", {});
+    toast("History cleared");
+    await load();
+  } catch(e) { toast("History clear nahi hui: " + e.message); }
+};
+$("saveBtn").onclick = () => save();
+
+$("cap").oninput = () => { dirty = true; };
+$("risk").oninput = () => { dirty = true; };
+
+$("pVol").onclick = () => { pairFilter = "other"; render(); };
+$("pFx").onclick = () => { pairFilter = "forex"; render(); };
+$("pAll").onclick = () => { pairFilter = "all"; render(); };
+$("pairSearch").addEventListener("input", e => { pairSearchText = e.target.value.trim().toLowerCase(); render(); });
+
+$("autoBtn").onclick = async () => {
+  const turnOn = !S.auto;
+  if (turnOn && S.account === "REAL"){
+    const ok = await ask("LIVE account par REAL paisa lagega. Auto-trade ON karein?");
+    if (!ok) return;
+  }
+  try{
+    await api("/auto", {on: turnOn});
+    S.auto = turnOn;
+    toast(turnOn ? "Auto ON" : "Auto OFF");
+  } catch(e){
+    toast("Error: " + e.message);
+  }
+  render();
+};
+
+$("pauseBtn").onclick = async () => {
+  try{
+    await api("/pause", {paused: !S.paused});
+    S.paused = !S.paused;
+  } catch(e){
+    toast("Error: " + e.message);
+  }
+  render();
+};
+
+/* ============================================================
+   ACCOUNT SWITCHING (DEMO <-> REAL) — FULL SAFETY
+============================================================ */
+document.querySelectorAll("#acctSeg button").forEach(b => {
+  b.onclick = async () => {
+    const target = b.dataset.a;
+    if (target === S.account) return;
+
+    // 1: Auto-trade chal raha ho to block
+    if (S.auto){
+      toast("Pehle auto-trade band karein");
+      return;
+    }
+
+    // 2: Server-side REAL permission
+    if (target === "REAL" && S.allow_real !== true){
+      toast("Server par REAL band hai (ALLOW_REAL=false)");
+      return;
+    }
+
+    // 3: REAL switch = double confirmation (Telegram-safe)
+    if (target === "REAL"){
+      const ok1 = await ask("⚠️ LIVE ACCOUNT: Is account mein REAL paisa lagega. Balance, PnL aur trades real honge. Switch karein?");
+      if (!ok1) return;
+      const ok2 = await ask("Dobara confirm karein: sach mein LIVE account par switch karna hai?");
+      if (!ok2){
+        toast("Switch cancel kiya");
+        return;
+      }
+    }
+
+    // 4: Switch API call
+    const prev = S.account;
+    try{
+      b.disabled = true;
+      $("status").textContent = "Switching to " + target + "...";
+
+      await api("/account", {account: target});
+      dirty = false;
+      await load();
+      if (S.account !== target) throw new Error("Server ne account switch confirm nahi kiya");
+      toast(target === "REAL" ? "🔴 LIVE account verified" : "🟢 Demo account verified");
+    } catch(e){
+      toast("Switch fail: " + e.message);
+      S.account = prev;   // rollback
+    } finally {
+      b.disabled = false;
+    }
+    render();
+  };
+});
+
+/* ============================================================
+   NAV
+============================================================ */
+document.querySelectorAll("nav button").forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x === b));
+    document.querySelectorAll(".page").forEach(p => p.classList.toggle("on", p.id === "p-" + b.dataset.p));
+    window.scrollTo(0,0);
+    haptic();
+  };
+});
+
+/* TWB countdown display tick; backend refresh remains authoritative */
+setInterval(() => {
+  const el = $("tradeCountdown");
+  if (!el || $("activeTradeCard").style.display === "none" || el.textContent === "VERIFY") return;
+  const m = el.textContent.match(/^(\d+):(\d+)$/);
+  if (m) {
+    const n = Math.max(0, (+m[1])*60 + (+m[2]) - 1);
+    el.textContent = String(Math.floor(n/60)).padStart(2,"0") + ":" + String(n%60).padStart(2,"0");
+  }
+}, 1000);
+
+/* ============================================================
+   LIVE POLLING
+============================================================ */
+function live(){
+  if (API_BASE) setInterval(() => load(), 5000);
+}
+
+
+async function doLogin(){
+  const id=$("loginId").value.trim(), password=$("loginPassword").value;
+  $("loginError").textContent=""; $("loginBtn").disabled=true;
+  try{
+    const r=await fetch(API_BASE+"/login",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({login_id:id,password})});
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.detail||"Login failed");
+    APP_SESSION=d.token; sessionStorage.setItem("twb_admin_session",APP_SESSION);
+    $("loginScreen").style.display="none"; $("appShell").classList.remove("app-locked");
+    await load(); live();
+  }catch(e){$("loginError").textContent=e.message}
+  finally{$("loginBtn").disabled=false}
+}
+$("loginBtn").onclick=doLogin;
+$("loginPassword").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin()});
+function showLogin(){
+  if(APP_SESSION){
+    $("loginScreen").style.display="none";
+    $("appShell").classList.remove("app-locked");
+    load(); live();
+  }else{
+    $("loginScreen").style.display="flex";
+    $("appShell").classList.add("app-locked");
+  }
+}
+function updateISTClock(){
+  $("istClock").textContent=new Intl.DateTimeFormat("en-IN",{timeZone:"Asia/Kolkata",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true}).format(new Date())+" IST";
+}
+function updateISTDate(){
+  const dateText=new Intl.DateTimeFormat("en-IN",{timeZone:"Asia/Kolkata",day:"2-digit",month:"short",year:"numeric"}).format(new Date());
+  const dateEl=$("todayDate");
+  if(dateEl && dateEl.textContent !== dateText) dateEl.textContent=dateText;
+}
+setInterval(updateISTClock,1000);
+updateISTClock();
+updateISTDate();
+
+// Multi-Layer Live Market background for the authenticated app shell.
+// Visual-only canvas: no trading state, DOM controls, network calls or strategy code touched.
+(function initMarketBackdrop(){
+  const canvas=document.getElementById("marketBackdrop"), shell=document.getElementById("appShell");
+  if(!canvas||!shell) return;
+  const ctx=canvas.getContext("2d",{alpha:true});
+  if(!ctx) return;
+  let w=0,h=0,dpr=1,raf=0,last=0,t=0,nodes=[],widthStep=0;
+  const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function resize(){
+    const r=shell.getBoundingClientRect(); w=Math.max(1,window.innerWidth); h=Math.max(1,window.innerHeight);
+    dpr=Math.min(window.devicePixelRatio||1,1.25);
+    canvas.width=Math.round(w*dpr); canvas.height=Math.round(h*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const cols=Math.max(5,Math.ceil(w/92)), rows=Math.max(4,Math.ceil(h/105));
+    nodes=[];
+    for(let y=0;y<=rows;y++) for(let x=0;x<=cols;x++){
+      nodes.push({x:(x/cols)*w+(Math.random()-.5)*25,y:(y/rows)*h+(Math.random()-.5)*28,
+        phase:Math.random()*Math.PI*2,drift:Math.random()*Math.PI*2,layer:Math.random()});
+    }
+    widthStep=cols+1;
+  }
+  function draw(now){
+    raf=0;
+    if(shell.classList.contains("app-locked")||document.hidden) return;
+    const dt=last?Math.min((now-last)/16.67,2):1; last=now; t+=dt*(reduced?.22:1.0);
+    ctx.clearRect(0,0,w,h);
+    // Deep market grid layer
+    ctx.save(); ctx.lineWidth=1; ctx.strokeStyle="rgba(0,255,168,.105)";
+    const shift=(t*1.05)%58;
+    for(let x=-58+shift;x<w+58;x+=58){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+    for(let y=-58+shift*.65;y<h+58;y+=58){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+    ctx.restore();
+    // Moving multi-layer price waves
+    for(let layer=0;layer<3;layer++){
+      const base=h*(.34+layer*.19), amp=22+layer*10, speed=(.012+layer*.004);
+      ctx.beginPath();
+      for(let x=0;x<=w;x+=8){
+        const y=base+Math.sin(x*.008+t*speed+layer*1.7)*amp+
+          Math.sin(x*.021-t*speed*1.8+layer)*amp*.32;
+        if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      }
+      ctx.strokeStyle=layer===1?"rgba(255,61,154,.20)":"rgba(0,255,168,"+(0.20-layer*.035)+")";
+      ctx.lineWidth=layer===1?1.4:1.8;ctx.shadowColor=layer===1?"#ff3d9a":"#00ffa8";ctx.shadowBlur=layer===0?12:7;ctx.stroke();ctx.shadowBlur=0;
+    }
+    // Parallax network: links, glowing nodes and traveling data pulses
+    const driftX=Math.sin(t*.012)*12, driftY=Math.cos(t*.009)*9;
+    for(let i=0;i<nodes.length;i++){
+      const a=nodes[i], ax=a.x+driftX*(.5+a.layer), ay=a.y+driftY*(.5+a.layer);
+      const neighbors=[i+1,i+widthStep,i+widthStep+1];
+      for(const j of neighbors){
+        if(j>=nodes.length)continue;
+        const b=nodes[j], bx=b.x+driftX*(.5+b.layer), by=b.y+driftY*(.5+b.layer);
+        const dx=bx-ax,dy=by-ay,dist=Math.hypot(dx,dy);
+        if(dist>150)continue;
+        ctx.strokeStyle="rgba(0,255,168,"+(0.045+(1-dist/150)*.105)+")";ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.stroke();
+        const pulse=(t*(.012+(i%4)*.001)+i*.173)%1;
+        const px=ax+dx*pulse,py=ay+dy*pulse;
+        ctx.fillStyle="rgba(105,255,211,.72)";ctx.shadowColor="#00ffa8";ctx.shadowBlur=8;
+        ctx.beginPath();ctx.arc(px,py,1.6,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+      }
+      const glow=.45+.35*Math.sin(t*.055+a.phase);
+      ctx.fillStyle=a.layer>.72?"rgba(255,61,154,"+(glow*.65)+")":"rgba(0,255,168,"+glow+")";
+      ctx.shadowColor=a.layer>.72?"#ff3d9a":"#00ffa8";ctx.shadowBlur=7;
+      ctx.beginPath();ctx.arc(ax,ay,a.layer>.72?2.3:1.8,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    }
+    // Floating market data bars at the far edges, kept intentionally subtle
+    for(let i=0;i<18;i++){
+      const x=(i*83+(t*1.6))%(w+40)-20, y=h*(.12+((i*37)%73)/100);
+      const bar=8+Math.abs(Math.sin(t*.045+i*1.9))*22, up=Math.sin(i*2.3+t*.018)>0;
+      ctx.strokeStyle=up?"rgba(0,255,168,.42)":"rgba(255,61,154,.38)";
+      ctx.fillStyle=ctx.strokeStyle;ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(x,y-bar);ctx.lineTo(x,y+bar);ctx.stroke();
+      ctx.fillRect(x-2.5,y-(up?bar*.45:-bar*.2),5,up?bar*.55:bar*.4);
+    }
+    raf=requestAnimationFrame(draw);
+  }
+  function start(){if(!raf&&!shell.classList.contains("app-locked")&&!document.hidden){last=0;raf=requestAnimationFrame(draw);}}
+  function stop(){if(raf){cancelAnimationFrame(raf);raf=0;}last=0;}
+  resize();window.addEventListener("resize",resize,{passive:true});
+  document.addEventListener("visibilitychange",()=>document.hidden?stop():start());
+  const observer=new MutationObserver(()=>shell.classList.contains("app-locked")?stop():start());
+  observer.observe(shell,{attributes:true,attributeFilter:["class"]});
+  start();
+})();
+
+// Subtle animated candlestick backdrop for the login screen only.
+(function initLoginCandles(){
+  const canvas=document.getElementById("loginCandles"), screen=document.getElementById("loginScreen");
+  if(!canvas||!screen) return;
+  const ctx=canvas.getContext("2d");
+  let width=0,height=0,dpr=1,raf=0,last=0,offset=0,candles=[];
+  function resize(){
+    const r=screen.getBoundingClientRect(); width=Math.max(1,r.width); height=Math.max(1,r.height);
+    dpr=Math.min(window.devicePixelRatio||1,1.5);
+    canvas.width=Math.round(width*dpr); canvas.height=Math.round(height*dpr); ctx.setTransform(dpr,0,0,dpr,0,0);
+    const step=19, count=Math.ceil(width/step)+5;
+    candles=Array.from({length:count},(_,i)=>({x:i*step,y:height*(.22+Math.random()*.56),body:7+Math.random()*13,wick:8+Math.random()*18,green:Math.random()>.43,phase:Math.random()*6.28}));
+  }
+  function draw(now){
+    raf=0; if(screen.style.display==="none") return;
+    last=now; offset+=.19; ctx.clearRect(0,0,width,height);
+    ctx.strokeStyle="rgba(0,255,168,.065)";ctx.lineWidth=1;
+    for(let y=height*.18;y<height;y+=54){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y);ctx.stroke();}
+    for(let x=0;x<width;x+=58){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,height);ctx.stroke();}
+    const step=19;
+    candles.forEach((c,i)=>{
+      const x=((c.x-offset*1.8)%(width+step)+width+step)%(width+step)-step;
+      const y=Math.max(30,Math.min(height-30,c.y+Math.sin(offset*.035+c.phase)*8+Math.sin(offset*.012+i*.7)*5));
+      const color=c.green?"#00ffa8":"#ff6688";
+      ctx.save();ctx.strokeStyle=color;ctx.fillStyle=color;ctx.globalAlpha=.48;ctx.shadowColor=color;ctx.shadowBlur=9;ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.moveTo(x,y-c.wick);ctx.lineTo(x,y+c.wick);ctx.stroke();
+      ctx.globalAlpha=.58;ctx.fillRect(x-3.2,y-c.body/2,6.4,c.body);ctx.restore();
+    });
+    const g=ctx.createLinearGradient(0,height*.68,0,height);g.addColorStop(0,"rgba(0,255,168,0)");g.addColorStop(1,"rgba(0,255,168,.075)");ctx.fillStyle=g;ctx.fillRect(0,height*.68,width,height*.32);
+    raf=requestAnimationFrame(draw);
+  }
+  function start(){if(!raf&&screen.style.display!=="none")raf=requestAnimationFrame(draw);}
+  function stop(){if(raf){cancelAnimationFrame(raf);raf=0;}last=0;}
+  resize();window.addEventListener("resize",resize,{passive:true});
+  const observer=new MutationObserver(()=>{if(screen.style.display==="none")stop();else start();});
+  observer.observe(screen,{attributes:true,attributeFilter:["style"]});start();
+})();
+
+showLogin();
+</script>
+</div>
+</body>
+      </html>
